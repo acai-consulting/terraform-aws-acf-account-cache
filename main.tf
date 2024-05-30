@@ -189,6 +189,20 @@ resource "aws_dynamodb_table" "context_cache" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_dir  = "${path.module}/layer-files"
+  output_path = "${path.module}/layer-files/zipped_package.zip"
+}
+
+resource "aws_lambda_layer_version" "layer" {
+  layer_name               = var.settings.lambda_layer_name
+  filename                 = data.archive_file.lambda_package.output_path
+  compatible_runtimes      = [var.lambda_settings.runtime]
+  compatible_architectures = [var.lambda_settings.architecture]
+  source_code_hash         = data.archive_file.lambda_package.output_sha256
+}
+
 module "lambda_account_cache" {
   #checkov:skip=CKV_TF_1: Currently version-tags are used
   source  = "acai-consulting/lambda/aws"
@@ -198,7 +212,8 @@ module "lambda_account_cache" {
     function_name = var.settings.lambda_name
     description   = "Maintain and query the account-cache."
     layer_arn_list = [
-      replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name)
+      replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name),
+      #aws_lambda_layer_version.layer.arn 
     ]
     handler = "main.lambda_handler"
     config  = var.lambda_settings
