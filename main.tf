@@ -85,7 +85,7 @@ data "aws_iam_policy_document" "kms_cmk" {
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
     actions = [
-      "kms:*", # for develoment only
+      #"kms:*", # for develoment only
       "kms:Create*",
       "kms:Describe*",
       "kms:Enable*",
@@ -225,6 +225,7 @@ module "lambda_account_cache" {
     }
     tracing_mode = var.lambda_settings.tracing_mode
     environment_variables = {
+      LOG_LEVEL                = var.lambda_settings.log_level
       ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
       CACHE_TTL_IN_MINUTES     = var.settings.cache_ttl_in_minutes
       CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name

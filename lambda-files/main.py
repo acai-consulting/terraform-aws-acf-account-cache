@@ -5,6 +5,8 @@ from datetime import datetime
 from helper_cache import ContextCacheHelper
 
 LOGGER = Logger()
+loglevel = "DEBUG" # os.environ.get('LOG_LEVEL', 'INFO').upper()
+LOGGER = Logger(service="acai-account-cache", level=loglevel)
 ORG_READER_ROLE_ARN = os.environ['ORG_READER_ROLE_ARN']
 CONTEXT_CACHE_TABLE_NAME = os.environ['CONTEXT_CACHE_TABLE_NAME']
 CACHE_TTL_IN_MINUTES = os.environ['CACHE_TTL_IN_MINUTES']
@@ -15,7 +17,10 @@ def lambda_handler(event, context):
         cache_helper = ContextCacheHelper(LOGGER, ORG_READER_ROLE_ARN, CONTEXT_CACHE_TABLE_NAME, CACHE_TTL_IN_MINUTES)
         cache_helper.refresh_cache()
         LOGGER.info(f'Cache {cache_helper.local_cache}')
-                
+
+        cache_helper.refresh_cache()
+        LOGGER.info(f'Cache {cache_helper.local_cache}')
+
     except Exception as e:
         LOGGER.exception(f'Unexpected error: {e}')
         raise e

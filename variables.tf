@@ -1,6 +1,7 @@
 variable "settings" {
   type = object({
     lambda_name       = optional(string, "acai-account-cache")
+    lambda_schedule   = optional(string, "cron(0 1 * * ? *)")
     lambda_layer_name = optional(string, "acai-account-cache-layer")
     lambda_iam_role = optional(object({
       name                     = optional(string, "acai-account-cache-lambda-role")
@@ -21,12 +22,10 @@ variable "settings" {
       deletion_window_in_days = 30
       policy_override         = null
     })
-    cache_ttl_in_minutes = optional(number, 60)
+    cache_ttl_in_minutes = optional(number, 90)
     org_reader_role_arn  = string
   })
 }
-
-
 
 
 # ---------------------------------------------------------------------------------------------------------------------
