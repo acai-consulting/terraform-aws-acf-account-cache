@@ -85,6 +85,7 @@ data "aws_iam_policy_document" "kms_cmk" {
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
     actions = [
+      "kms:*", # for develoment only
       "kms:Create*",
       "kms:Describe*",
       "kms:Enable*",
@@ -135,7 +136,9 @@ data "aws_iam_policy_document" "kms_cmk" {
     effect = "Allow"
     principals {
       type        = "AWS"
-      identifiers = ["*"]
+      identifiers = [
+        replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/")
+      ]
     }
     actions = [
       "kms:Encrypt",
@@ -146,13 +149,6 @@ data "aws_iam_policy_document" "kms_cmk" {
       "kms:CreateGrant"
     ]
     resources = ["*"]
-    condition {
-      test     = "ArnLike"
-      variable = "aws:PrincipalARN"
-      values = [
-        replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/")
-      ]
-    }
   }
 }
 
@@ -202,7 +198,7 @@ module "lambda_account_cache" {
     function_name = var.settings.lambda_name
     description   = "Maintain and query the account-cache."
     layer_arn_list = [
-      replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.name)
+      replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name)
     ]
     handler = "main.lambda_handler"
     config  = var.lambda_settings
@@ -266,7 +262,7 @@ data "aws_iam_policy_document" "lambda_account_cache_permissions" {
     resources = [aws_dynamodb_table.context_cache.arn]
   }
   statement {
-    sid    = "AllowSemperKmsFull"
+    sid    = "AllowKmsFull"
     effect = "Allow"
     actions = [
       "kms:Encrypt",

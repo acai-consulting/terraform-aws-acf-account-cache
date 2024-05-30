@@ -8,6 +8,9 @@ ORG_READER_ROLE_ARN = os.environ['ORG_READER_ROLE_ARN']
 class OrganizationsHelper:
     def __init__(self, logger):
         self.logger = logger
+        self.ou_id_cache = {}
+        self.ou_name_with_path_cache = {}
+        self.ou_tags_cache = {}
         remote_session = self._assume_remote_role(ORG_READER_ROLE_ARN)
         if remote_session:
             self.organizations_client = remote_session.client('organizations')
@@ -53,20 +56,31 @@ class OrganizationsHelper:
 
     # ¦ _get_ou_id
     def _get_ou_id(self, account_id):
+        if account_id in self.ou_id_cache:
+            return self.ou_id_cache[account_id]
+
         try:
             response = self.organizations_client.list_parents(ChildId=account_id)
             parents = response.get('Parents')
             if parents and len(parents) == 1:
-                return parents[0]['Id']
+                ou_id = parents[0]['Id']
+                self.ou_id_cache[account_id] = ou_id
+                return ou_id
         except Exception as e:
             self.logger.error(f"Error getting OU ID for account {account_id}: {e}")
         return None
 
     # ¦ _get_ou_name
     def _get_ou_name(self, ou_id):
+        if ou_id in self.ou_name_with_path_cache:
+            return self.ou_name_with_path_cache[ou_id][0]
+
         try:
             response = self.organizations_client.describe_organizational_unit(OrganizationalUnitId=ou_id)
-            return response['OrganizationalUnit'].get('Name', "")
+            ou_name = response['OrganizationalUnit'].get('Name', "")
+            if ou_id not in self.ou_name_with_path_cache:
+                self.ou_name_with_path_cache[ou_id] = [ou_name, ""]
+            return ou_name
         except self.organizations_client.exceptions.OrganizationalUnitNotFoundException:
             self.logger.error(f"Organizational unit not found: {ou_id}")
         except self.organizations_client.exceptions.AWSOrganizationsNotInUseException:
@@ -77,6 +91,9 @@ class OrganizationsHelper:
 
     # ¦ _get_ou_name_with_path
     def _get_ou_name_with_path(self, account_id):
+        if account_id in self.ou_name_with_path_cache:
+            return self.ou_name_with_path_cache[account_id]
+
         try:
             ou_path = []
             child_id = account_id
@@ -93,7 +110,9 @@ class OrganizationsHelper:
                 ou_path.append(parent_ou_name)
 
                 if parent_type == 'ROOT':
-                    return direct_parent_ou_name, "/".join(reversed(ou_path))
+                    ou_path_str = "/".join(reversed(ou_path))
+                    self.ou_name_with_path_cache[account_id] = (direct_parent_ou_name, ou_path_str)
+                    return direct_parent_ou_name, ou_path_str
                 else:
                     child_id = parent_ou_id
         except Exception as e:
@@ -116,12 +135,16 @@ class OrganizationsHelper:
 
     # ¦ _get_tags
     def _get_tags(self, resource_id):
+        if resource_id in self.ou_tags_cache:
+            return self.ou_tags_cache[resource_id]
+
         tags = {}
         paginator = self.organizations_client.get_paginator('list_tags_for_resource')
         try:
             for page in paginator.paginate(ResourceId=resource_id):
                 for entry in page.get('Tags', []):
                     tags[entry['Key']] = entry['Value']
+            self.ou_tags_cache[resource_id] = tags
         except Exception as e:
             self.logger.error(f"Error getting tags for resource {resource_id}: {e}")
         return tags
