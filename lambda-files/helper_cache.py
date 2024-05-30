@@ -13,33 +13,27 @@ class ContextCacheHelper:
         self.logger = logger
         self.organizations_helper = OrganizationsHelper(logger, org_reader_role_arn)
         self.context_cache_table_name = context_cache_table_name
-        self.cache_ttl_in_minutes = cache_ttl_in_minutes
+        self.cache_ttl_in_minutes = int(cache_ttl_in_minutes) 
         self.context_cache_table = CONTEXT_CACHE_RESOURCE.Table(self.context_cache_table_name)
         self.local_cache = {}
 
     def refresh_cache(self):
         all_accounts = self.organizations_helper.list_all_accounts()
-        expired_accounts = []
-
         for account in all_accounts:
             account_id = account['Id']
             cache_entry = self._context_cache_entry_get(account_id, "AccountContext")
-            if cache_entry is None:
-                expired_accounts.append(account_id)
-
-        for account_id in expired_accounts:
-            context_data = self.organizations_helper.get_member_account_context(account_id)
-            self._context_cache_entry_add(account_id, "AccountContext", context_data)
-            self.logger.debug(f"Refreshed cache for account {account_id}")
+            if cache_entry is None or cache_entry['timeToExist'] <= time.time():
+                context_data = self.organizations_helper.get_member_account_context(account_id)
+                self._context_cache_entry_add(account_id, "AccountContext", context_data)
+                self.logger.debug(f"Refreshed cache for account {account_id}")
+            else:
+                self.local_cache[account_id] = {
+                    'cacheValue': cache_entry,
+                    'timeToExist': cache_entry['timeToExist']
+                }
+                self.logger.debug(f"Loaded account-context from DynamoDB cache and updated local cache for account {account_id}")
 
     def get_member_account_context(self, originating_account_id):
-        # Check local cache first
-        if originating_account_id in self.local_cache:
-            local_entry = self.local_cache[originating_account_id]
-            if local_entry['timeToExist'] > time.time():
-                self.logger.debug("Loaded account-context from local cache")
-                return local_entry['cacheValue']
-
         # If not in local cache or expired, check DynamoDB cache
         from_cache = self._context_cache_entry_get(originating_account_id, "AccountContext")
         if from_cache is None:
@@ -57,39 +51,48 @@ class ContextCacheHelper:
             self.logger.debug("Loaded account-context from DynamoDB cache and updated local cache")
             return from_cache
 
+    def get_local_cache(self):
+        return self.local_cache
+
     # ¦ _context_cache_entry_get
     def _context_cache_entry_get(self, account_id, context_id):
-        result_tmp = []
-        paginator = CONTEXT_CACHE_CLIENT.get_paginator('scan')
-        for page in paginator.paginate(
-            TableName=self.context_cache_table_name,
-            ScanFilter={
-                "accountId": {
-                    "AttributeValueList": [
-                        {"S": account_id}
-                    ],
-                    "ComparisonOperator": "EQ"
-                },
-                "contextId": {
-                    "AttributeValueList": [
-                        {"S": context_id}
-                    ],
-                    "ComparisonOperator": "EQ"
-                },
-            }):
+        if account_id in self.local_cache:
+            local_entry = self.local_cache[account_id]
+            if local_entry['timeToExist'] > time.time():
+                self.logger.debug("Loaded account-context from local cache")
+                return local_entry['cacheValue']
+        else:
+            result_tmp = []
+            paginator = CONTEXT_CACHE_CLIENT.get_paginator('scan')
+            for page in paginator.paginate(
+                TableName=self.context_cache_table_name,
+                ScanFilter={
+                    "accountId": {
+                        "AttributeValueList": [
+                            {"S": account_id}
+                        ],
+                        "ComparisonOperator": "EQ"
+                    },
+                    "contextId": {
+                        "AttributeValueList": [
+                            {"S": context_id}
+                        ],
+                        "ComparisonOperator": "EQ"
+                    },
+                }):
 
-            for item in page['Items']:
-                if int(item['timeToExist']['N']) > int(time.time()):
-                    result_tmp.append(item)
+                for item in page['Items']:
+                    if int(item['timeToExist']['N']) > int(time.time()):
+                        result_tmp.append(item)
 
-        if len(result_tmp) > 0:
-            cache_entry = json.loads(result_tmp[0]['cacheValue']['S'])
-            if 'ouNameWithPath' in cache_entry:
-                return cache_entry
-            else:
-                return None
+            if len(result_tmp) > 0:
+                cache_entry = json.loads(result_tmp[0]['cacheValue']['S'])
+                if 'ouNameWithPath' in cache_entry:
+                    return cache_entry
+                else:
+                    return None
 
-        return None
+            return None
 
     # ¦ _context_cache_entry_add
     def _context_cache_entry_add(self, account_id, context_id, value_dict):

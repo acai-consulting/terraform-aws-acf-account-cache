@@ -121,7 +121,6 @@ class OrganizationsHelper:
     def _describe_account(self, account_id):
         try:
             response = self.organizations_client.describe_account(AccountId=account_id)
-            self.logger.info(f"Account description: {response}")
             return response
         except self.organizations_client.exceptions.AccountNotFoundException:
             self.logger.error(f"Account not found: {account_id}")
