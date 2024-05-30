@@ -52,11 +52,14 @@ resource "aws_kms_alias" "kms_cmk" {
 
 #checkov:skip=CKV_AWS_111 : Resources cannot be defined, as KMS Key ARN is not known at creation time
 data "aws_iam_policy_document" "kms_cmk" {
+  # Checkov Skips for policy checks
   #checkov:skip=CKV_AWS_356 : Resource policy
   #checkov:skip=CKV_AWS_109
   #checkov:skip=CKV_AWS_111
-  # enable IAM in logging account
+
   override_policy_documents = var.settings.kms_cmk.policy_override
+
+  # Statement for Read Permissions
   statement {
     sid    = "ReadPermissions"
     effect = "Allow"
@@ -70,9 +73,10 @@ data "aws_iam_policy_document" "kms_cmk" {
       "kms:List*",
       "kms:Get*",
     ]
-    resources = ["*"]
+    resources = ["arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
   }
 
+  # Statement for Management Permissions
   statement {
     sid    = "ManagementPermissions"
     effect = "Allow"
@@ -99,8 +103,10 @@ data "aws_iam_policy_document" "kms_cmk" {
     ]
     resources = ["*"]
   }
+
+  # Statement for Allowing Specific AWS Services
   statement {
-    sid    = "Allow Services"
+    sid    = "AllowServices"
     effect = "Allow"
     actions = [
       "kms:Encrypt",
@@ -124,8 +130,10 @@ data "aws_iam_policy_document" "kms_cmk" {
       ]
     }
   }
+
+  # Statement for Allowing Lambda Execution Role
   statement {
-    sid    = "Allow Lambda Execution Role"
+    sid    = "AllowLambdaExecutionRole"
     effect = "Allow"
     actions = [
       "kms:Encrypt",
@@ -143,7 +151,6 @@ data "aws_iam_policy_document" "kms_cmk" {
     condition {
       test     = "ArnLike"
       variable = "aws:PrincipalARN"
-
       values = [
         replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/")
       ]
@@ -188,14 +195,14 @@ resource "aws_dynamodb_table" "context_cache" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
-module "lambda" {
+module "lambda_account_cache" {
   #checkov:skip=CKV_TF_1: Currently version-tags are used
   source  = "acai-consulting/lambda/aws"
   version = "~> 1.3.2"
 
   lambda_settings = {
     function_name = var.settings.lambda_name
-    description   = "Query the cache."
+    description   = "Maintain and query the account-cache."
     layer_arn_list = [
     ]
     handler = "main.lambda_handler"
@@ -208,15 +215,11 @@ module "lambda" {
     }
     tracing_mode = var.lambda_settings.tracing_mode
     environment_variables = {
-      CONTEXT_CACHE_TABLE_NAME     = var.context_cache_name
+      CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
     }
   }
   execution_iam_role_settings = {
-    new_iam_role = {
-      name                     = var.lambda_settings.execution_role_name
-      path                     = var.semper_settings.core_security.general.iam_role_path
-      permissions_boundary_arn = var.semper_settings.core_security.general.iam_role_permissions_boundary_arn
-    }
+    new_iam_role = var.settings.lambda_iam_role
   }
   existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
   resource_tags        = local.resource_tags
