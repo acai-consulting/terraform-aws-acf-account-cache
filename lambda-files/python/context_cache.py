@@ -59,9 +59,12 @@ class ContextCache:
         if cache_entry is None:
             # If not in DynamoDB cache, get from API and update both caches
             from_api = self.organizations_helper.get_member_account_context(account_id)
-            self._context_cache_entry_add(account_id, "AccountContext", from_api)
-            self.logger.debug("Loaded account-context from API and stored to cache-store and local-cache")
-            return from_api
+            if not from_api:
+                self._context_cache_entry_add(account_id, "AccountContext", from_api)
+                self.logger.debug("Loaded account-context from API and stored to cache-store and local-cache")
+            else: 
+                self.logger.info(f"Account {account_id} was not found.")
+            return from_api            
         return cache_entry
 
     def get_local_cache(self):

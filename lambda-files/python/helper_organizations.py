@@ -31,6 +31,8 @@ class OrganizationsHelper:
     # ¦ get_member_account_context
     def get_member_account_context(self, member_account_id):
         account_info = self._describe_account(member_account_id)
+        if not account_info:
+            return None
         account_name = account_info.get('Account', {}).get('Name', 'n/a')
         account_status = account_info.get('Account', {}).get('Status', 'n/a')
         caller_ou_id = self._get_ou_id(member_account_id)
