@@ -4,15 +4,14 @@ import os
 import boto3
 
 REGION = os.environ['AWS_REGION']
-TTL_IN_HOURS = 3
 CONTEXT_CACHE_CLIENT = boto3.client('dynamodb', region_name=REGION)
 CONTEXT_CACHE_RESOURCE = boto3.resource('dynamodb', region_name=REGION)
 
 class ContextCacheHelper:
-    def __init__(self, logger, organizations_helper):
+    def __init__(self, logger, organizations_helper, context_cache_table_name):
         self.logger = logger
         self.organizations_helper = organizations_helper
-        self.context_cache_table_name = os.environ['CONTEXT_CACHE_TABLE_NAME']
+        self.context_cache_table_name = context_cache_table_name
         self.context_cache_table = CONTEXT_CACHE_RESOURCE.Table(self.context_cache_table_name)
         self.local_cache = {}
 
@@ -52,7 +51,7 @@ class ContextCacheHelper:
             # Update local cache
             self.local_cache[originating_account_id] = {
                 'cacheValue': from_cache,
-                'timeToExist': int(time.time()) + TTL_IN_HOURS * 60 * 60
+                'timeToExist': int(time.time()) + TTL_IN_HOURS * 60
             }
             self.logger.debug("Loaded account-context from DynamoDB cache and updated local cache")
             return from_cache

@@ -1,17 +1,15 @@
 import json
 import time
-import os
 import boto3
 
-ORG_READER_ROLE_ARN = os.environ['ORG_READER_ROLE_ARN']
 
 class OrganizationsHelper:
-    def __init__(self, logger):
+    def __init__(self, logger, org_reader_role_arn):
         self.logger = logger
         self.ou_id_cache = {}
         self.ou_name_with_path_cache = {}
         self.ou_tags_cache = {}
-        remote_session = self._assume_remote_role(ORG_READER_ROLE_ARN)
+        remote_session = self._assume_remote_role(org_reader_role_arn)
         if remote_session:
             self.organizations_client = remote_session.client('organizations')
         else:
