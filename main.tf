@@ -80,7 +80,6 @@ data "aws_iam_policy_document" "kms_cmk" {
   statement {
     sid    = "ManagementPermissions"
     effect = "Allow"
-
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
@@ -89,6 +88,7 @@ data "aws_iam_policy_document" "kms_cmk" {
       "kms:Create*",
       "kms:Describe*",
       "kms:Enable*",
+      "kms:Encrypt",
       "kms:List*",
       "kms:Put*",
       "kms:Update*",
