@@ -214,6 +214,7 @@ module "lambda_account_cache" {
     }
     tracing_mode = var.lambda_settings.tracing_mode
     environment_variables = {
+      ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
       CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
     }
   }

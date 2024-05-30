@@ -4,38 +4,30 @@ import os
 import boto3
 import botocore
 
-REGION = os.environ['AWS_REGION']
-TTL_IN_HOURS = 3
-
-BOTO3_ORGANIZATIONS =  boto3.client('organizations')
+ORG_READER_ROLE_ARN = os.environ['ORG_READER_ROLE_ARN']
 
 class OrganizationsHelper:
-    def __init__(self, logger):
+    def __init__(self, logger, sts_session):
         self.logger = logger
-        self.organizations_client = self.organizations_client
+        remote_session = self._assume_remote_role(ORG_READER_ROLE_ARN)
+        self.organizations_client = remote_session.client('organizations')
 
     # ---------------------------------------------------------------------------------------------------------------------
     # ¦ CONTEXT CACHE HANDLING
 
     def get_organization_context(self):
-        #iterate through all accounts of the organization and call get_member_account_context
-        return list of get_member_account_context
-
-
+        account_list = self._list_all_accounts()
+        return [self.get_member_account_context(account['Id']) for account in account_list]
 
     # ¦ get_member_account_context
     def get_member_account_context(self, member_account_id):
         account_info = self._organizations_describe_account(member_account_id)
-        account_name = 'n/a'
-        account_status = 'n/a'
-        if 'Account' in account_info:
-            if 'Name' in account_info['Account']:
-                account_name = account_info['Account']['Name']
-            if 'Status' in account_info['Account']:
-                account_status = account_info['Account']['Status']
+        account_name = account_info.get('Account', {}).get('Name', 'n/a')
+        account_status = account_info.get('Account', {}).get('Status', 'n/a')
         caller_ou_id = self._organizations_get_ou_id(member_account_id)
-        caller_ou_name, caller_ou_name_with_path = self._organizations_get_ou_name_with_path(member_account_id)      
+        caller_ou_name, caller_ou_name_with_path = self._organizations_get_ou_name_with_path(member_account_id)
         caller_account_tags = self._organizations_get_tags(member_account_id)
+        ou_tags = self._organizations_get_tags(caller_ou_id) if caller_ou_id else {}
 
         return {
             'accountId': member_account_id,
@@ -45,70 +37,73 @@ class OrganizationsHelper:
             'ouId': caller_ou_id,
             'ouName': caller_ou_name,
             'ouNameWithPath': caller_ou_name_with_path,
-            'ouTags': ot_tags
+            'ouTags': ou_tags
         }
 
-    # ¦ _organizations_get_ou_id
-    def _organizations_get_ou_id(self, account_id):
-        response = self.organizations_client.list_parents(ChildId=account_id)
-        if 'Parents' in response and len(response['Parents']) == 1:
-            return response['Parents'][0]['Id']
+    # ¦ _list_all_accounts
+    def _list_all_accounts(self):
+        accounts = []
+        paginator = self.organizations_client.get_paginator('list_accounts')
+        try:
+            for page in paginator.paginate():
+                accounts.extend(page.get('Accounts', []))
+        except Exception as e:
+            self.logger.error(f"Error listing accounts: {e}")
+        return accounts
+
+
+    # ¦ _get_ou_id
+    def _get_ou_id(self, account_id):
+        try:
+            response = self.organizations_client.list_parents(ChildId=account_id)
+            parents = response.get('Parents')
+            if parents and len(parents) == 1:
+                return parents[0]['Id']
+        except Exception as e:
+            self.logger.error(f"Error getting OU ID for account {account_id}: {e}")
         return None
 
-    # ¦ _organizations_get_ou_name
-    def _organizations_get_ou_name(self, ou_id):
+    # ¦ _get_ou_name
+    def _get_ou_name(self, ou_id):
         try:
             response = self.organizations_client.describe_organizational_unit(OrganizationalUnitId=ou_id)
-            return response['OrganizationalUnit']['Name']
+            return response['OrganizationalUnit'].get('Name', "")
+        except self.organizations_client.exceptions.OrganizationalUnitNotFoundException:
+            self.logger.error(f"Organizational unit not found: {ou_id}")
+        except self.organizations_client.exceptions.AWSOrganizationsNotInUseException:
+            self.logger.error("AWS Organizations is not in use in this account.")
         except Exception as e:
-            return ""
+            self.logger.error(f"Unexpected error occurred while describing organizational unit {ou_id}: {e}")
+        return ""
 
-    # ¦ _organizations_get_ou_name_with_path
-    def _organizations_get_ou_name_with_path(self, account_id):
+    # ¦ _get_ou_name_with_path
+    def _get_ou_name_with_path(self, account_id):
         try:
-            parent_ou_id = ""
-            ou_path = ""
+            ou_path = []
             child_id = account_id
             while True:
                 parents = self.organizations_client.list_parents(ChildId=child_id)
-                parent_ou_id = parents['Parents'][0]['Id']
-                if parents['Parents'][0]['Type'] == 'ROOT':
-                    parent_ou_name = "Root"
-                else:
-                    parent_ou_name = self._organizations_get_ou_name(parent_ou_id)
+                parent = parents['Parents'][0]
+                parent_ou_id = parent['Id']
+                parent_type = parent['Type']
+                parent_ou_name = "Root" if parent_type == 'ROOT' else self._organizations_get_ou_name(parent_ou_id)
 
                 if child_id == account_id:
                     direct_parent_ou_name = parent_ou_name
 
-                ou_path = parent_ou_name + "/" + ou_path
+                ou_path.append(parent_ou_name)
                 
-                if parents['Parents'][0]['Type'] == 'ROOT':
-                    return direct_parent_ou_name, ou_path
+                if parent_type == 'ROOT':
+                    return direct_parent_ou_name, "/".join(reversed(ou_path))
                 else:
-                    # parent is new child
                     child_id = parent_ou_id
 
         except Exception as e:
-            return ""
+            self.logger.error(f"Error getting OU name with path for account {account_id}: {e}")
+        return "", ""
 
-
-    # ¦ _organizations_get_ou_name
-    def _organizations_get_ou_name(self, ou_id):
-        try:
-            response = self.organizations_client.describe_organizational_unit(OrganizationalUnitId=ou_id)
-            return response['OrganizationalUnit']['Name']
-        except self.organizations_client.exceptions.OrganizationalUnitNotFoundException:
-            self.logger.error(f"Organizational unit not found: {ou_id}")
-            return ""
-        except self.organizations_client.exceptions.AWSOrganizationsNotInUseException:
-            self.logger.error("AWS Organizations is not in use in this account.")
-            return ""
-        except Exception as e:
-            self.logger.error(f"Unexpected error occurred while describing organizational unit {ou_id}: {e}")
-            return ""
-
-    # ¦ _organizations_describe_account
-    def _organizations_describe_account(self, account_id):
+    # ¦ _describe_account
+    def _describe_account(self, account_id):
         try:
             response = self.organizations_client.describe_account(AccountId=account_id)
             self.logger.info(f"Account description: {response}")
@@ -123,9 +118,8 @@ class OrganizationsHelper:
             self.logger.error(f"Unexpected error occurred while describing account {account_id}: {e}")
             return {}
         
-        
-    # ¦ _organizations_get_tags
-    def _organizations_get_tags(self, resource_id):
+    # ¦ _get_tags
+    def _get_tags(self, resource_id):
         ret_dict = {}
         paginator = self.organizations_client.get_paginator('list_tags_for_resource')
         try:
@@ -135,3 +129,27 @@ class OrganizationsHelper:
         except Exception as e:
             self.logger.error(f"Error getting tags for resource {resource_id}: {e}")
         return ret_dict
+
+    def _assume_remote_role(self, remote_role_arn):
+        try:
+            # Assumes the provided role in the auditing member account and returns a session
+            # Beginning the assume role process for account
+            sts_client = boto3.client('sts')
+
+            response = sts_client.assume_role(
+                RoleArn=remote_role_arn,
+                RoleSessionName='RemoteSession'
+            )
+
+            # Storing STS credentials
+            session = boto3.Session(
+                aws_access_key_id=response["Credentials"]["AccessKeyId"],
+                aws_secret_access_key=response["Credentials"]["SecretAccessKey"],
+                aws_session_token=response["Credentials"]["SessionToken"]
+            )
+            return session
+
+        except Exception as e:
+            self.logger.exception(f'Was not able to assume role {remote_role_arn}')
+            return None
+        
