@@ -32,6 +32,7 @@ locals {
       "module_version"  = /*inject_version_start*/ "1.0.0" /*inject_version_end*/
     }
   )
+  ddb_ttl_tag_name = "cache_ttl_in_minutes"
 }
 
 
@@ -43,7 +44,7 @@ resource "aws_kms_key" "kms_cmk" {
   deletion_window_in_days = var.settings.kms_cmk.deletion_window_in_days
   enable_key_rotation     = true
   policy                  = data.aws_iam_policy_document.kms_cmk.json
-  tags                    = var.resource_tags
+  tags                    = local.resource_tags
 }
 
 resource "aws_kms_alias" "kms_cmk" {
@@ -137,7 +138,8 @@ data "aws_iam_policy_document" "kms_cmk" {
     principals {
       type = "AWS"
       identifiers = [
-        replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/")
+        replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/"),
+        "arn:aws:iam::992382728088:role/account-cache-consumer_execution_role"
       ]
     }
     actions = [
@@ -182,70 +184,24 @@ resource "aws_dynamodb_table" "context_cache" {
     enabled = false
   }
 
-  tags = var.resource_tags
-}
-
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA
-# ---------------------------------------------------------------------------------------------------------------------
-data "archive_file" "lambda_package" {
-  type        = "zip"
-  source_dir  = "${path.module}/layer-files"
-  output_path = "${path.module}/layer-files/zipped_package.zip"
-}
-
-resource "aws_lambda_layer_version" "layer" {
-  layer_name               = var.settings.lambda_layer_name
-  filename                 = data.archive_file.lambda_package.output_path
-  compatible_runtimes      = [var.lambda_settings.runtime]
-  compatible_architectures = [var.lambda_settings.architecture]
-  source_code_hash         = data.archive_file.lambda_package.output_sha256
-}
-
-module "lambda_account_cache" {
-  #checkov:skip=CKV_TF_1: Currently version-tags are used
-  source  = "acai-consulting/lambda/aws"
-  version = "~> 1.3.2"
-
-  lambda_settings = {
-    function_name = var.settings.lambda_name
-    description   = "Maintain and query the account-cache."
-    layer_arn_list = [
-      replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name),
-      #aws_lambda_layer_version.layer.arn 
-    ]
-    handler = "main.lambda_handler"
-    config  = var.lambda_settings
-    error_handling = var.lambda_settings.error_forwarder == null ? null : {
-      central_collector = var.lambda_settings.error_forwarder
+  tags = merge(
+    local.resource_tags,
+    {
+      "${local.ddb_ttl_tag_name}" = var.settings.cache_ttl_in_minutes
     }
-    package = {
-      source_path = "${path.module}/lambda-files"
-    }
-    tracing_mode = var.lambda_settings.tracing_mode
-    environment_variables = {
-      LOG_LEVEL                = var.lambda_settings.log_level
-      ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
-      CACHE_TTL_IN_MINUTES     = var.settings.cache_ttl_in_minutes
-      CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
-    }
-  }
-  execution_iam_role_settings = {
-    new_iam_role = var.settings.lambda_iam_role
-  }
-  existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
-  resource_tags        = local.resource_tags
+  )
 }
 
+
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ PROCESSING LAMBDA EXECUTION POLICY
+# ¦ CACHE POLICY
 # ---------------------------------------------------------------------------------------------------------------------
-resource "aws_iam_role_policy" "lambda_account_cache_permissions" {
-  name   = replace(module.lambda_account_cache.execution_iam_role.name, "role", "policy")
-  role   = module.lambda_account_cache.execution_iam_role.name
-  policy = data.aws_iam_policy_document.lambda_account_cache_permissions.json
+resource "aws_iam_policy" "lambda_account_cache_permissions" {
+  name        = replace(module.lambda_account_cache.execution_iam_role.name, "role", "policy")
+  description = "Policy for Lambda function to access DynamoDB, KMS, and assume roles"
+  policy      = data.aws_iam_policy_document.lambda_account_cache_permissions.json
 }
+
 
 #organizations wildcard required to include all OUs
 #tfsec:ignore:aws-iam-no-policy-wildcards
@@ -274,7 +230,8 @@ data "aws_iam_policy_document" "lambda_account_cache_permissions" {
       "dynamodb:CreateTable",
       "dynamodb:DeleteItem",
       "dynamodb:UpdateItem",
-      "dynamodb:PutItem"
+      "dynamodb:PutItem",
+      "dynamodb:ListTagsOfResource"
     ]
     resources = [aws_dynamodb_table.context_cache.arn]
   }
@@ -295,4 +252,72 @@ data "aws_iam_policy_document" "lambda_account_cache_permissions" {
     ]
     resources = [aws_kms_key.kms_cmk.arn]
   }
+  statement {
+    sid    = "AllowStsGetCallerIdentity"
+    effect = "Allow"
+    actions = [
+      "sts:GetCallerIdentity"
+    ]
+    resources = ["*"]
+  }  
+}
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ LAMBDA
+# ---------------------------------------------------------------------------------------------------------------------
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda-files"
+  output_path = "${path.module}/lambda-files/zipped_package.zip"
+}
+
+resource "aws_lambda_layer_version" "layer" {
+  layer_name               = var.settings.lambda_layer_name
+  filename                 = data.archive_file.lambda_package.output_path
+  compatible_runtimes      = [var.lambda_settings.runtime]
+  compatible_architectures = [var.lambda_settings.architecture]
+  source_code_hash         = data.archive_file.lambda_package.output_sha256
+}
+
+module "lambda_account_cache" {
+  #checkov:skip=CKV_TF_1: Currently version-tags are used
+  source  = "acai-consulting/lambda/aws"
+  version = "~> 1.3.2"
+
+  lambda_settings = {
+    function_name = var.settings.lambda_name
+    description   = "Maintain and query the account-cache."
+    layer_arn_list = [
+      replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name),
+    ]
+    handler = "main.lambda_handler"
+    config  = var.lambda_settings
+    error_handling = var.lambda_settings.error_forwarder == null ? null : {
+      central_collector = var.lambda_settings.error_forwarder
+    }
+    package = {
+      source_path = "${path.module}/lambda-files/python"
+    }
+    tracing_mode = var.lambda_settings.tracing_mode
+    environment_variables = {
+      LOG_LEVEL                = var.lambda_settings.log_level
+      ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
+      CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
+      DDB_TTL_TAG_NAME         = local.ddb_ttl_tag_name
+    }
+  }
+  execution_iam_role_settings = {
+    new_iam_role = var.settings.lambda_iam_role
+  }
+  existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
+  resource_tags        = local.resource_tags
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ ASSIGN CACHE POLICY TO LAMBDA EXECUTION ROLE
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachment" {
+  role       = module.lambda_account_cache.execution_iam_role.name
+  policy_arn = aws_iam_policy.lambda_account_cache_permissions.arn
 }

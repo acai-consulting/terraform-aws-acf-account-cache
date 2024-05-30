@@ -43,11 +43,23 @@ module "org_info_reader" {
 }
 
 module "cache" {
-  source = "../.."
+  source = "../../"
 
   settings = {
     org_reader_role_arn = module.org_info_reader.iam_role_arn
   }
+  providers = {
+    aws = aws.core_security
+  }
+}
+
+module "consumer" {
+  source = "./consumer"
+
+  org_reader_role_arn                = module.org_info_reader.iam_role_arn
+  ddb_name                           = module.cache.ddb_name
+  cache_lambda_layer_arn             = module.cache.cache_lambda_layer_arn
+  cache_lambda_permission_policy_arn = module.cache.cache_lambda_permission_policy_arn
   providers = {
     aws = aws.core_security
   }
