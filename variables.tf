@@ -41,10 +41,12 @@ variable "lambda_settings" {
       target_name = string
       target_arn  = string
     }), null)
-    memory_size    = optional(number, 512) # Size of the memory, in MB
-    timeout        = optional(number, 720) # Timeout for the function, in seconds
-    tracing_mode   = optional(string, "Active")
-    crypted_source = optional(bool, true) # If true, source is encrypted
+    memory_size  = optional(number, 512) # Size of the memory, in MB
+    timeout      = optional(number, 720) # Timeout for the function, in seconds
+    tracing_mode = optional(string, "Active")
+    layer_arns = optional(map(any), {
+      "aws_lambda_powertools_python_layer_arn" = "arn:aws:lambda:$region:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"
+    })
   })
 
   default = {
@@ -56,7 +58,9 @@ variable "lambda_settings" {
     memory_size           = 512
     timeout               = 720
     tracing_mode          = "Active"
-    crypted_source        = true
+    layer_arns = {
+      "aws_lambda_powertools_python_layer_arn" = "arn:aws:lambda:$region:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"
+    }
   }
 
   validation {

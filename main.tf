@@ -202,6 +202,7 @@ module "lambda_account_cache" {
     function_name = var.settings.lambda_name
     description   = "Maintain and query the account-cache."
     layer_arn_list = [
+      replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.name)
     ]
     handler = "main.lambda_handler"
     config  = var.lambda_settings
