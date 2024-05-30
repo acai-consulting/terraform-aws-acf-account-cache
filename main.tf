@@ -135,7 +135,7 @@ data "aws_iam_policy_document" "kms_cmk" {
     sid    = "AllowLambdaExecutionRole"
     effect = "Allow"
     principals {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/")
       ]
@@ -211,6 +211,7 @@ module "lambda_account_cache" {
     tracing_mode = var.lambda_settings.tracing_mode
     environment_variables = {
       ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
+      CACHE_TTL_IN_MINUTES     = var.settings.cache_ttl_in_minutes
       CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
     }
   }

@@ -20,6 +20,7 @@ variable "settings" {
       deletion_window_in_days = 30
       policy_override         = null
     })
+    cache_ttl_in_minutes = optional(number, 60)
     org_reader_role_arn = string
   })
 }
