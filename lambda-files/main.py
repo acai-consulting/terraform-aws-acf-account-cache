@@ -1,5 +1,5 @@
 from aws_lambda_powertools import Logger
-import os
+import json
 from datetime import datetime
 from helper_organizations import OrganizationsHelper
 

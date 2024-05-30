@@ -17,6 +17,17 @@ class OrganizationsHelper:
         else:
             self.organizations_client = boto3.client('organizations')
 
+    # ¦ list_all_accounts
+    def list_all_accounts(self):
+        accounts = []
+        paginator = self.organizations_client.get_paginator('list_accounts')
+        try:
+            for page in paginator.paginate():
+                accounts.extend(page.get('Accounts', []))
+        except Exception as e:
+            self.logger.error(f"Error listing accounts: {e}")
+        return accounts
+
     # ¦ CONTEXT CACHE HANDLING
     def get_organization_context(self):
         account_list = self._list_all_accounts()
@@ -42,17 +53,6 @@ class OrganizationsHelper:
             'ouNameWithPath': caller_ou_name_with_path,
             'ouTags': ou_tags
         }
-
-    # ¦ _list_all_accounts
-    def _list_all_accounts(self):
-        accounts = []
-        paginator = self.organizations_client.get_paginator('list_accounts')
-        try:
-            for page in paginator.paginate():
-                accounts.extend(page.get('Accounts', []))
-        except Exception as e:
-            self.logger.error(f"Error listing accounts: {e}")
-        return accounts
 
     # ¦ _get_ou_id
     def _get_ou_id(self, account_id):
