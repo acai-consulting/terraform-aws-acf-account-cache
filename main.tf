@@ -17,6 +17,7 @@ terraform {
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
@@ -63,7 +64,6 @@ data "aws_iam_policy_document" "kms_cmk" {
   statement {
     sid    = "ReadPermissions"
     effect = "Allow"
-
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
@@ -73,7 +73,7 @@ data "aws_iam_policy_document" "kms_cmk" {
       "kms:List*",
       "kms:Get*",
     ]
-    resources = ["arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"]
+    resources = ["*"]
   }
 
   # Statement for Management Permissions
@@ -108,33 +108,35 @@ data "aws_iam_policy_document" "kms_cmk" {
   statement {
     sid    = "AllowServices"
     effect = "Allow"
+    principals {
+      type = "Service"
+      identifiers = [
+        "lambda.amazonaws.com",
+        "xray.amazonaws.com",
+        "dynamodb.amazonaws.com",
+        "logs.amazonaws.com"
+      ]
+    }
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
-      "kms:DescribeKey",
-      "kms:CreateGrant"
+      "kms:Describe*",
+      "kms:Get*",
+      "kms:List*",
     ]
     resources = ["*"]
-    condition {
-      test     = "StringLike"
-      variable = "kms:ViaService"
-      values = [
-        "dynamodb.*.amazonaws.com",
-        "ec2.*.amazonaws.com",
-        "elasticfilesystem.*.amazonaws.com",
-        "rds.*.amazonaws.com",
-        "redshift.*.amazonaws.com",
-        "backup.*.amazonaws.com"
-      ]
-    }
   }
 
   # Statement for Allowing Lambda Execution Role
   statement {
     sid    = "AllowLambdaExecutionRole"
     effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
@@ -144,10 +146,6 @@ data "aws_iam_policy_document" "kms_cmk" {
       "kms:CreateGrant"
     ]
     resources = ["*"]
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
     condition {
       test     = "ArnLike"
       variable = "aws:PrincipalARN"

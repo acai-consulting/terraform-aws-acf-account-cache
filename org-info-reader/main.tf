@@ -45,10 +45,10 @@ data "aws_iam_policy_document" "org_info_reader_trust" {
     effect = "Allow"
     principals {
       type = "AWS"
-      identifiers = merge(
+      identifiers = flatten(concat(
         var.settings.trusted_principals,
-        formatlist("arn:aws:iam::%s:root", values(var.settings.trusted_account_ids))
-      )
+        formatlist("arn:aws:iam::%s:root", var.settings.trusted_account_ids)
+      ))
     }
     actions = [
       "sts:AssumeRole"

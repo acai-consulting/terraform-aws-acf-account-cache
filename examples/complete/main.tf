@@ -22,13 +22,33 @@ data "aws_region" "current" {}
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
-locals {}
+locals {
+  settings = {
+    lambda_name = "test"
+  }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ MODULE
 # ---------------------------------------------------------------------------------------------------------------------
-module "example_complete" {
-  source = "../../"
+module "org_info_reader" {
+  source = "../../org-info-reader"
 
-  input_variable = "value1"
+  settings = {
+    trusted_account_ids = ["992382728088"]
+  }
+  providers = {
+    aws = aws.org_mgmt
+  }
+}
+
+module "cache" {
+  source = "../.."
+
+  settings = {
+    org_reader_role_arn = module.org_info_reader.iam_role_arn
+  }
+  providers = {
+    aws = aws.core_security
+  }
 }

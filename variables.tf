@@ -1,18 +1,25 @@
 variable "settings" {
   type = object({
-    lambda_name         = optional(string, "acai-account-cache")
-    lambda_iam_role = object({
-      name                     = string
+    lambda_name = optional(string, "acai-account-cache")
+    lambda_iam_role = optional(object({
+      name                     = optional(string, "acai-account-cache-lambda-role")
       path                     = optional(string, "/")
       permissions_boundary_arn = optional(string, null)
+      }), {
+      name                     = "acai-account-cache-lambda-role"
+      path                     = "/"
+      permissions_boundary_arn = null
     })
-    ddb_name            = optional(string, "acai-account-cache")
-    kms_cmk = object({
-      alias_name              = string
+    ddb_name = optional(string, "acai-account-cache")
+    kms_cmk = optional(object({
+      alias_name              = optional(string, "alias/acai-account-cache-key")
       deletion_window_in_days = optional(number, 30)
       policy_override         = optional(list(string), null) # should override the statement_ids 'ReadPermissions' or 'ManagementPermissions'
+      }), {
+      alias_name              = "alias/acai-account-cache-key"
+      deletion_window_in_days = 30
+      policy_override         = null
     })
-    kms_cmk_alias       = optional(string, "acai-account-cache-key")
     org_reader_role_arn = string
   })
 }
