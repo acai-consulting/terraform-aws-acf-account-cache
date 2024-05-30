@@ -16,8 +16,15 @@ def lambda_handler(event, context):
         LOGGER.info(f'Cache {context_cache.local_cache}')
 
         context_cache.refresh_cache()
-        LOGGER.info(f'Cache {context_cache.local_cache}')
+        LOGGER.info(f'Cache after refresh {context_cache.local_cache}')
 
+        context_cache.reset_cache()
+        LOGGER.info(f'Cache after reset {context_cache.local_cache}')
+
+        context_cache.refresh_cache()
+        LOGGER.info(f'Cache after refresh {context_cache.local_cache}')
+
+        LOGGER.info(context_cache.get_member_account_context("1234"))
     except Exception as e:
         LOGGER.exception(f'Unexpected error: {e}')
         raise e

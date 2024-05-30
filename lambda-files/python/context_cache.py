@@ -21,6 +21,27 @@ class ContextCache:
         self.local_cache = LOCAL_CACHE
         self.logger.info(f"Registered for cache-store {context_cache_table_name} with TTL {self.cache_ttl_in_minutes} minutes and local-cache with {len(self.local_cache)} items")
 
+    def reset_cache(self):
+        # Clear the local cache
+        self.local_cache.clear()
+        self.logger.info("Local cache cleared.")
+
+        # Scan the DynamoDB table to get all items
+        scan_response = CONTEXT_CACHE_CLIENT.scan(
+            TableName=self.context_cache_table_name,
+            ProjectionExpression='accountId, contextId'
+        )
+        
+        with self.context_cache_table.batch_writer() as batch:
+            for item in scan_response['Items']:
+                batch.delete_item(
+                    Key={
+                        'accountId': item['accountId']['S'],
+                        'contextId': item['contextId']['S']
+                    }
+                )
+        self.logger.info(f"DynamoDB table {self.context_cache_table_name} cleared.")
+
     def refresh_cache(self):
         all_accounts = self.organizations_helper.list_all_accounts()
 
