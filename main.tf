@@ -222,3 +222,62 @@ module "lambda_account_cache" {
   existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
   resource_tags        = local.resource_tags
 }
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ PROCESSING LAMBDA EXECUTION POLICY
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_iam_role_policy" "lambda_account_cache_permissions" {
+  name   = replace(module.lambda_account_cache.execution_iam_role.name, "role", "policy")
+  role   = module.lambda_account_cache.execution_iam_role.name
+  policy = data.aws_iam_policy_document.lambda_account_cache_permissions.json
+}
+
+#organizations wildcard required to include all OUs
+#tfsec:ignore:aws-iam-no-policy-wildcards
+data "aws_iam_policy_document" "lambda_account_cache_permissions" {
+  statement {
+    sid    = "AssumeOrgReaderRole"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [var.settings.org_reader_role_arn]
+  }
+  statement {
+    sid    = "AllowContextCacheAccess"
+    effect = "Allow"
+    actions = [
+      "dynamodb:BatchGetItem",
+      "dynamodb:DescribeStream",
+      "dynamodb:DescribeTable",
+      "dynamodb:GetItem",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:BatchWriteItem",
+      "dynamodb:CreateTable",
+      "dynamodb:DeleteItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:PutItem"
+    ]
+    resources = [aws_dynamodb_table.context_cache.arn]
+  }
+  statement {
+    sid    = "AllowSemperKmsFull"
+    effect = "Allow"
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncryptFrom",
+      "kms:ReEncrpytTo",
+      "kms:GenerateDataKey",
+      "kms:GenerateDataKeyPair",
+      "kms:GenerateDataKeyPairWithoutPlaintext",
+      "kms:GenerateDataKeyWithoutPlaintext",
+      "kms:DescribeKey",
+      "kms:CreateGrant"
+    ]
+    resources = [aws_kms_key.kms_cmk.arn]
+  }
+}
