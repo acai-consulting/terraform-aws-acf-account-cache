@@ -1,0 +1,21 @@
+---
+version: 2
+
+registries:
+  terraform-registry:
+    type: terraform-registry
+    url: https://app.terraform.io
+    token: ${{ secrets.TFE_API_TOKEN }}
+
+updates:
+  - package-ecosystem: "terraform"
+    directory: "/"
+    registries:
+      - terraform-registry
+    schedule:
+      interval: "daily"
+  
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"

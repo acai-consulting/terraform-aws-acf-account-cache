@@ -1,0 +1,54 @@
+name: TERRAFORM MODULE
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  tfc-module-base-job:
+    uses: acai-consulting/github-terraform-workflows/.github/workflows/tfc-module-base.yml@main
+    if: ${{ github.event_name == 'pull_request' }}
+    with:
+      tflint_config_repo: "acai-consulting/github-workflow-configs"
+      tflint_config_repo_ref: "main"
+      tflint_config_path: ".tflint.hcl"
+
+  tfc-module-test-job:
+    needs: tfc-module-base-job
+    uses: acai-consulting/github-terraform-workflows/.github/workflows/tfc-module-test.yml@main
+    if: ${{ github.event_name == 'pull_request' }}
+    with:
+      terratest_config_repo: "acai-consulting/github-workflow-configs"
+      terratest_config_repo_ref: "main"
+      terratest_config_repo_path: "aws/matrix_tf1x3x10_aws5x0x0.json"
+    secrets:
+      TFC_API_TOKEN: ${{ secrets.TFC_API_TOKEN }}
+      AWS_TESTBED_ACCESS_KEY_ID: ${{ secrets.AWS_TESTBED_ACCESS_KEY_ID }}
+      AWS_TESTBED_SECRET_ACCESS_KEY: ${{ secrets.AWS_TESTBED_SECRET_ACCESS_KEY }}
+      AWS_TESTBED_DEFAULT_REGION: ${{ secrets.AWS_TESTBED_DEFAULT_REGION }}
+
+  consume-outputs:
+    needs: [tfc-module-base-job, tfc-module-test-job]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Outputs from Reusable Workflow
+        run: |
+          echo "Fmt Status: ${{ needs.tfc-module-base-job.outputs.fmt_status }}"
+          echo "Docs Status: ${{ needs.tfc-module-base-job.outputs.docs_status }}"
+          echo "Lint Status: ${{ needs.tfc-module-base-job.outputs.lint_status }}"
+          echo "Fmt Diff Exists: ${{ needs.tfc-module-base-job.outputs.fmt_diff_exists }}"
+          echo "Docs Diff Exists: ${{ needs.tfc-module-base-job.outputs.docs_diff_exists }}"
+
+  tfc-module-release:
+    uses: acai-consulting/github-terraform-workflows/.github/workflows/tfc-module-release.yml@main
+    if: ${{ github.event_name == 'push' }}
+    with:
+      semantic_release_config_repo: "acai-consulting/github-workflow-configs"
+      semantic_release_config_repo_ref: "main"
+      release_branch: "main"
+    secrets:
+      GHE_API_TOKEN: ${{ secrets.GH_ACF_BSL_API_TOKEN }}
