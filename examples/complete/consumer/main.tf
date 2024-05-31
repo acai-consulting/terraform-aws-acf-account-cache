@@ -42,6 +42,7 @@ module "lambda_account_cache_consumer" {
     layer_arn_list = [
       var.cache_lambda_layer_arn
     ]
+    config  = var.lambda_settings
     handler = "main.lambda_handler"
     package = {
       source_path = "${path.module}/lambda-files"
