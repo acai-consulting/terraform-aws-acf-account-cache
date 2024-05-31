@@ -259,7 +259,7 @@ data "aws_iam_policy_document" "lambda_account_cache_permissions" {
       "sts:GetCallerIdentity"
     ]
     resources = ["*"]
-  }  
+  }
 }
 
 

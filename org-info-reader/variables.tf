@@ -4,13 +4,13 @@ variable "settings" {
       name                     = optional(string, "acai-account-cache-org-reader-role")
       path                     = optional(string, "/")
       permissions_boundary_arn = optional(string, null)
-    }), {
+      }), {
       name                     = "acai-account-cache-org-reader-role"
       path                     = "/"
       permissions_boundary_arn = null
     })
     trusted_account_ids = optional(list(string), [])
-    trusted_principals = optional(list(string), [])
+    trusted_principals  = optional(list(string), [])
   })
   default = {
     iam_role = {
@@ -19,7 +19,7 @@ variable "settings" {
       permissions_boundary_arn = null
     }
     trusted_account_ids = []
-    trusted_principals = []
+    trusted_principals  = []
   }
   validation {
     condition     = length(var.settings.trusted_account_ids) > 0 || length(var.settings.trusted_principals) > 0
