@@ -3,7 +3,6 @@ import boto3
 class OrganizationsHelper:
     def __init__(self, logger, org_reader_role_arn):
         self.logger = logger
-        self.ou_id_cache = {}
         self.ou_id_with_path_cache = {}
         self.ou_name_cache = {}
         self.ou_name_with_path_cache = {}
@@ -38,7 +37,7 @@ class OrganizationsHelper:
         account_name = account_info.get('Account', {}).get('Name', 'n/a')
         account_status = account_info.get('Account', {}).get('Status', 'n/a')
         caller_ou_id, caller_ou_id_with_path = self._get_ou_id_with_path(member_account_id)
-        caller_ou_name, caller_ou_name_with_path = self._get_ou_name_with_path(member_account_id)
+        caller_ou_name, caller_ou_name_with_path = self._get_ou_name_with_path(caller_ou_id)
         caller_account_tags = self._get_tags(member_account_id)
         ou_tags = self._get_tags(caller_ou_id) if caller_ou_id else {}
 
@@ -78,8 +77,8 @@ class OrganizationsHelper:
                         
         except Exception as e:
             self.logger.error(f"Error getting OU ID with path for account {account_id}: {e}")
-        return ""
-    
+        return "", ""
+
     # ¦ _get_ou_name
     def _get_ou_name(self, ou_id):
         if ou_id in self.ou_name_cache:
@@ -88,7 +87,7 @@ class OrganizationsHelper:
         try:
             response = self.organizations_client.describe_organizational_unit(OrganizationalUnitId=ou_id)
             ou_name = response['OrganizationalUnit'].get('Name', "")
-            self.ou_name_cache[ou_id] = (ou_name)
+            self.ou_name_cache[ou_id] = ou_name
             return ou_name
         except self.organizations_client.exceptions.OrganizationalUnitNotFoundException:
             self.logger.error(f"Organizational unit not found: {ou_id}")
