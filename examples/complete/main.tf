@@ -47,6 +47,9 @@ module "account_cache" {
   source = "../../"
 
   settings = {
+    kms_cmk = {
+      allowed_principals = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
     org_reader_role_arn = module.org_info_reader.iam_role_arn
   }
   providers = {

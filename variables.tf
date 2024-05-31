@@ -21,6 +21,7 @@ variable "settings" {
       alias_name              = "alias/acai-account-cache-key"
       deletion_window_in_days = 30
       policy_override         = null
+      allowed_principals      = optional(list(string), [])
     })
     cache_ttl_in_minutes = optional(number, 90)
     org_reader_role_arn  = string

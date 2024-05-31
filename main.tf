@@ -138,8 +138,10 @@ data "aws_iam_policy_document" "kms_cmk" {
     principals {
       type = "AWS"
       identifiers = [
-        replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/"),
-        "arn:aws:iam::992382728088:role/account-cache-consumer_execution_role"
+        flatten(concat(
+          replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/"),
+          var.settings.kms_cmk.allowed_principals
+        ))
       ]
     }
     actions = [
