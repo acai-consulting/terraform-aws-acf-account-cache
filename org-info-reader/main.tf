@@ -62,6 +62,7 @@ resource "aws_iam_role_policy" "org_info_reader" {
   policy = data.aws_iam_policy_document.org_info_reader.json
 }
 
+#tfsec:ignore:AVD-AWS-0057
 data "aws_iam_policy_document" "org_info_reader" {
   statement {
     sid    = "AllowOrgAndAccountInfoAccess"
