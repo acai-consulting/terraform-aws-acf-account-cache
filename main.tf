@@ -157,6 +157,7 @@ data "aws_iam_policy_document" "kms_cmk" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ MAIN
 # ---------------------------------------------------------------------------------------------------------------------
+#tfsec:ignore:AVD-AWS-0024 : Not required for a cache
 resource "aws_dynamodb_table" "context_cache" {
   name = var.settings.ddb_name
 
