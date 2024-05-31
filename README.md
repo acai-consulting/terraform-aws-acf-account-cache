@@ -51,7 +51,6 @@ The module retrieves and caches the following account-context data:
 
 ![architecture][architecture]
 
-
 <!-- USAGE -->
 ## Usage
 
@@ -110,6 +109,39 @@ resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachmen
   role       = module.lambda_account_cache_consumer.execution_iam_role.name
   policy_arn = module.account_cache.cache_lambda_permission_policy_arn
 }
+```
+
+## Scale-Up
+
+[Contact us](mailto:contact@acai.gmbh), if you are looking for ways to query your account-cache with statements like this:
+
+```json
+accounts_with_specific_name = cache.query({
+    "exclude": "*",
+    "forceInclude": {
+        "accountName": {
+            "contains": "-core-"
+        }
+    }
+})
+
+-> will select all AWS Accounts where "accountName" contains "-core-"
+```
+
+```json
+accounts_with_specific_tag_in_specific_dpt = cache.query({
+    "exclude": "*",
+    "forceInclude": {
+      "accountTags": {
+          "environment": "nonprod"
+      },
+      "ouNameWithPath": [
+          {
+              "contains": "department_a_"
+          }
+      ]
+    }    
+})
 ```
 
 <!-- BEGIN_TF_DOCS -->
