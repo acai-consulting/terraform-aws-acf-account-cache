@@ -71,7 +71,7 @@ module "cache_consumer" {
 resource "aws_lambda_invocation" "invoke_cache_consumer" {
   function_name = module.cache_consumer.lambda_name
 
-  input = <<JSON
+  input    = <<JSON
 {
   "account_id": "${data.aws_caller_identity.current.account_id}"
 }

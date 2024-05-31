@@ -1,17 +1,17 @@
 variable "org_reader_role_arn" {
-type = string
+  type = string
 }
 
 variable "ddb_name" {
-type = string
+  type = string
 }
 
 variable "cache_lambda_layer_arn" {
-type = string
+  type = string
 }
 
 variable "cache_lambda_permission_policy_arn" {
-    type = string
+  type = string
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
