@@ -1,34 +1,18 @@
-variable "settings" {
-  type = object({
-    lambda_name       = optional(string, "acai-account-cache")
-    lambda_schedule   = optional(string, "rate(30 minutes)")
-    lambda_layer_name = optional(string, "acai-account-cache-layer")
-    lambda_iam_role = optional(object({
-      name                     = optional(string, "acai-account-cache-lambda-role")
-      path                     = optional(string, "/")
-      permissions_boundary_arn = optional(string, null)
-      }), {
-      name                     = "acai-account-cache-lambda-role"
-      path                     = "/"
-      permissions_boundary_arn = null
-    })
-    ddb_name = optional(string, "acai-account-cache")
-    kms_cmk = optional(object({
-      alias_name              = optional(string, "alias/acai-account-cache-key")
-      deletion_window_in_days = optional(number, 30)
-      policy_override         = optional(list(string), null) # should override the statement_ids 'ReadPermissions' or 'ManagementPermissions'
-      allowed_principals      = optional(list(string), [])
-      }), {
-      alias_name              = "alias/acai-account-cache-key"
-      deletion_window_in_days = 30
-      policy_override         = null
-      allowed_principals      = []
-    })
-    cache_ttl_in_minutes = optional(number, 90)
-    org_reader_role_arn  = string
-  })
+variable "org_reader_role_arn" {
+  type = string
 }
 
+variable "ddb_name" {
+  type = string
+}
+
+variable "cache_lambda_layer_arn" {
+  type = string
+}
+
+variable "cache_lambda_permission_policy_arn" {
+  type = string
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA SETTINGS
@@ -47,9 +31,6 @@ variable "lambda_settings" {
     memory_size  = optional(number, 512) # Size of the memory, in MB
     timeout      = optional(number, 720) # Timeout for the function, in seconds
     tracing_mode = optional(string, "Active")
-    layer_arns = optional(map(any), {
-      "aws_lambda_powertools_python_layer_arn" = "arn:aws:lambda:$region:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"
-    })
   })
 
   default = {
@@ -61,9 +42,6 @@ variable "lambda_settings" {
     memory_size           = 512
     timeout               = 720
     tracing_mode          = "Active"
-    layer_arns = {
-      "aws_lambda_powertools_python_layer_arn" = "arn:aws:lambda:$region:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"
-    }
   }
 
   validation {

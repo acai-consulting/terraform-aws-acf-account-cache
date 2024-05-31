@@ -35,4 +35,5 @@ override.tf.json
 *.dtmp
 
 *.tfx
+*.zip
 
