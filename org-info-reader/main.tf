@@ -64,6 +64,7 @@ resource "aws_iam_role_policy" "org_info_reader" {
 
 #tfsec:ignore:AVD-AWS-0057
 data "aws_iam_policy_document" "org_info_reader" {
+  #checkov:skip=CKV_AWS_356   
   statement {
     sid    = "AllowOrgAndAccountInfoAccess"
     effect = "Allow"

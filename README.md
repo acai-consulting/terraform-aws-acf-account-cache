@@ -16,9 +16,14 @@
 </br>
 
 <!-- DESCRIPTION -->
-[Terraform][terraform-url] module to deploy an AWS account-context cache.
+[Terraform][terraform-url] module to deploy an serverless AWS account-context cache.
 
-Will query and cache AWS Organization for the following account-context data.
+This Terraform module facilitates the deployment of an AWS account-context cache, which queries and caches account-context data from AWS Organizations. 
+
+The cached data includes essential details such as account ID, name, status, tags, and organizational unit (OU) hierarchy.
+
+**Cached Account-Context Data**
+The module retrieves and caches the following account-context data:
 
 ```json
 {
@@ -38,16 +43,14 @@ Will query and cache AWS Organization for the following account-context data.
 }
 ```
 
+* The account-context cache can be deployed in any AWS account of the AWS Organization.
+* Optionally provision the Organization-Info-Reader IAM Role to be assumed from the context cache.
+
 <!-- ARCHITECTURE -->
 ## Architecture
 
 ![architecture][architecture]
 
-<!-- FEATURES -->
-## Features
-
-* The account-context cache can be deployed in any AWS account of the AWS Organization.
-* Optionally provision the Organization-Info-Reader IAM Role.
 
 <!-- USAGE -->
 ## Usage
