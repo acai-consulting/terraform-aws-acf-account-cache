@@ -37,6 +37,30 @@ locals {
 
 
 # ---------------------------------------------------------------------------------------------------------------------
+# ¦ LAMBDA EXECUTION ROLE
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_iam_role" "lambda_exec_role" {
+  name                 = var.settings.lambda_iam_role.name
+  path                 = var.settings.lambda_iam_role.path
+  permissions_boundary = var.settings.lambda_iam_role.permissions_boundary_arn
+
+  assume_role_policy   = data.aws_iam_policy_document.lambda_exec_role_trust.json
+}
+
+data "aws_iam_policy_document" "lambda_exec_role_trust" {
+  statement {
+    sid     = "TrustPolicy"
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+
+# ---------------------------------------------------------------------------------------------------------------------
 # ¦ KMS CMK
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_kms_key" "kms_cmk" {
@@ -138,9 +162,9 @@ data "aws_iam_policy_document" "kms_cmk" {
     principals {
       type = "AWS"
       identifiers = flatten(concat(
-          [replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.settings.lambda_iam_role.path}${var.settings.lambda_iam_role.name}", "////", "/")],
-          var.settings.kms_cmk.allowed_principals
-        ))      
+        [aws_iam_role.lambda_exec_role.arn],
+        var.settings.kms_cmk.allowed_principals
+      ))
     }
     actions = [
       "kms:Encrypt",
@@ -155,51 +179,10 @@ data "aws_iam_policy_document" "kms_cmk" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ MAIN
-# ---------------------------------------------------------------------------------------------------------------------
-#tfsec:ignore:AVD-AWS-0024 : Not required for a cache
-resource "aws_dynamodb_table" "context_cache" {
-  #checkov:skip=CKV_AWS_28 : Not required for a cache
-  name = var.settings.ddb_name
-
-  hash_key     = "accountId"
-  range_key    = "contextId"
-  billing_mode = "PAY_PER_REQUEST"
-  server_side_encryption {
-    enabled     = true
-    kms_key_arn = aws_kms_key.kms_cmk.arn
-  }
-  ttl {
-    attribute_name = "timeToExist"
-    enabled        = true
-  }
-  attribute {
-    name = "accountId"
-    type = "S"
-  }
-  attribute {
-    name = "contextId"
-    type = "S"
-  }
-
-  point_in_time_recovery {
-    enabled = false
-  }
-
-  tags = merge(
-    local.resource_tags,
-    {
-      "${local.ddb_ttl_tag_name}" = var.settings.cache_ttl_in_minutes
-    }
-  )
-}
-
-
-# ---------------------------------------------------------------------------------------------------------------------
 # ¦ CACHE POLICY
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_policy" "lambda_account_cache_permissions" {
-  name        = replace(module.lambda_account_cache.execution_iam_role.name, "role", "policy")
+  name        = replace(var.settings.lambda_iam_role.name, "role", "policy")
   description = "Policy for Lambda function to access DynamoDB, KMS, and assume roles"
   policy      = data.aws_iam_policy_document.lambda_account_cache_permissions.json
 }
@@ -264,6 +247,51 @@ data "aws_iam_policy_document" "lambda_account_cache_permissions" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachment" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = aws_iam_policy.lambda_account_cache_permissions.arn
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ DYNAMO DB CONTEXT CACHE
+# ---------------------------------------------------------------------------------------------------------------------
+#tfsec:ignore:AVD-AWS-0024 : Not required for a cache
+resource "aws_dynamodb_table" "context_cache" {
+  #checkov:skip=CKV_AWS_28 : Not required for a cache
+  name = var.settings.ddb_name
+
+  hash_key     = "accountId"
+  range_key    = "contextId"
+  billing_mode = "PAY_PER_REQUEST"
+  server_side_encryption {
+    enabled     = true
+    kms_key_arn = aws_kms_key.kms_cmk.arn
+  }
+  ttl {
+    attribute_name = "timeToExist"
+    enabled        = true
+  }
+  attribute {
+    name = "accountId"
+    type = "S"
+  }
+  attribute {
+    name = "contextId"
+    type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = false
+  }
+
+  tags = merge(
+    local.resource_tags,
+    {
+      "${local.ddb_ttl_tag_name}" = var.settings.cache_ttl_in_minutes
+    }
+  )
+}
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA
@@ -310,18 +338,11 @@ module "lambda_account_cache" {
     }
   }
   execution_iam_role_settings = {
-    new_iam_role = var.settings.lambda_iam_role
+    existing_iam_role_name = aws_iam_role.lambda_exec_role.name
   }
   existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
   resource_tags        = local.resource_tags
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ ASSIGN CACHE POLICY TO LAMBDA EXECUTION ROLE
-# ---------------------------------------------------------------------------------------------------------------------
-resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachment" {
-  role       = module.lambda_account_cache.execution_iam_role.name
-  policy_arn = aws_iam_policy.lambda_account_cache_permissions.arn
+  depends_on = [ aws_iam_role.lambda_exec_role ]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
