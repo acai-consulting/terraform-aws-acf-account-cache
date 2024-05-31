@@ -44,7 +44,7 @@ resource "aws_iam_role" "lambda_exec_role" {
   path                 = var.settings.lambda_iam_role.path
   permissions_boundary = var.settings.lambda_iam_role.permissions_boundary_arn
 
-  assume_role_policy   = data.aws_iam_policy_document.lambda_exec_role_trust.json
+  assume_role_policy = data.aws_iam_policy_document.lambda_exec_role_trust.json
 }
 
 data "aws_iam_policy_document" "lambda_exec_role_trust" {
@@ -342,7 +342,7 @@ module "lambda_account_cache" {
   }
   existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
   resource_tags        = local.resource_tags
-  depends_on = [ aws_iam_role.lambda_exec_role ]
+  depends_on           = [aws_iam_role.lambda_exec_role]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
