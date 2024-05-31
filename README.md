@@ -115,7 +115,8 @@ resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachmen
 
 [Contact us](mailto:contact@acai.gmbh), if you are looking for ways to query your account cache with statements like this:
 
-```json
+```python
+# will select all AWS Accounts where the account-tag "environment" is not "nonprod"
 selection = cache.query({
   "exclude": {
     "accountTags": {
@@ -123,11 +124,10 @@ selection = cache.query({
     }
   }
 })
-
--> will select all AWS Accounts where the account-tag "environment" is not "nonprod"
 ```
 
-```json
+```python
+# will select all AWS Accounts where "accountName" contains "-core-"
 selection = cache.query({
     "exclude": "*",
     "forceInclude": {
@@ -136,11 +136,10 @@ selection = cache.query({
         }
     }
 })
-
--> will select all AWS Accounts where "accountName" contains "-core-"
 ```
 
-```json
+```python
+# will select all AWS Accounts where the account-tag "environment" is "prod" and that have "department_a_" in their OU-path
 selection = cache.query({
     "exclude": "*",
     "forceInclude": {
@@ -154,8 +153,6 @@ selection = cache.query({
       ]
     }    
 })
-
--> will select all AWS Accounts where the account-tag "environment" is "prod" and that have "department_a_" in their OU-path
 ```
 
 <!-- BEGIN_TF_DOCS -->
