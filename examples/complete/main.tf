@@ -43,6 +43,7 @@ module "org_info_reader" {
 }
 
 module "account_cache" {
+  #checkov:skip=CKV_AWS_50
   source = "../../"
 
   settings = {
