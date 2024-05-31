@@ -42,14 +42,9 @@ module "lambda_account_cache_consumer" {
       var.cache_lambda_layer_arn
     ]
     handler = "main.lambda_handler"
-    config  = var.lambda_settings
-    error_handling = var.lambda_settings.error_forwarder == null ? null : {
-      central_collector = var.lambda_settings.error_forwarder
-    }
     package = {
       source_path = "${path.module}/lambda-files"
     }
-    tracing_mode = var.lambda_settings.tracing_mode
     environment_variables = {
       LOG_LEVEL                = var.lambda_settings.log_level
       ORG_READER_ROLE_ARN      = var.org_reader_role_arn
