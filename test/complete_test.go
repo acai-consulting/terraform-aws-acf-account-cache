@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExampleComplete(t *testing.T) {
 	// retryable errors in terraform testing.
-	t.Log("Starting Sample Module test")
+	t.Log("Starting Example Module test")
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../examples/complete",
@@ -19,10 +20,9 @@ func TestExampleComplete(t *testing.T) {
 	defer terraform.Destroy(t, terraformOptions)
 	terraform.InitAndApply(t, terraformOptions)
 
-	accountidOutput := terraform.Output(t, terraformOptions, "account_id")
-	t.Log(accountidOutput)
+	// Retrieve the 'test_success' output
+	testSuccessOutput := terraform.Output(t, terraformOptions, "example_passed")
 
-	inputOutput := terraform.Output(t, terraformOptions, "input")
-	t.Log(inputOutput)
-	// Do testing. I.E check if your ressources are deployed via AWS GO SDK
+	// Assert that 'test_success' equals "true"
+	assert.Equal(t, "true", testSuccessOutput, "The test_success output is not true")
 }
