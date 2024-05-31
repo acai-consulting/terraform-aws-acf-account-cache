@@ -321,3 +321,15 @@ resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachmen
   role       = module.lambda_account_cache.execution_iam_role.name
   policy_arn = aws_iam_policy.lambda_account_cache_permissions.arn
 }
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ INVOKE LAMBDA
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_lambda_invocation" "invoke" {
+  function_name = module.lambda_account_cache.lambda.name
+
+  input = <<JSON
+{
+}
+JSON
+}

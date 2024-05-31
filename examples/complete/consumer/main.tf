@@ -36,7 +36,7 @@ module "lambda_account_cache_consumer" {
 
   lambda_settings = {
     function_name = "account-cache-consumer"
-    description   = "Maintain and query the account-cache."
+    description   = "Query the account-cache."
     layer_arn_list = [
       var.cache_lambda_layer_arn
     ]

@@ -3,15 +3,23 @@ import boto3
 class OrganizationsHelper:
     def __init__(self, logger, org_reader_role_arn):
         self.logger = logger
-        self.ou_id_with_path_cache = {}
-        self.ou_name_cache = {}
-        self.ou_name_with_path_cache = {}
-        self.ou_tags_cache = {}
         remote_session = self._assume_remote_role(org_reader_role_arn)
         if remote_session:
             self.organizations_client = remote_session.client('organizations')
         else:
             self.organizations_client = boto3.client('organizations')
+        self.org_id = self._get_organization_id()
+        self.roots = self._get_organization_roots()
+        self.parents_cache = {}
+        self.ou_id_with_path_cache = {}
+        self.ou_name_cache = {}
+        self.ou_name_with_path_cache = {}
+        self.ou_tags_cache = {}
+
+    def debug_info(self):
+        self.logger.info(f'{self.ou_id_with_path_cache=}')
+        self.logger.info(f'{self.ou_name_cache=}')
+        self.logger.info(f'{self.ou_name_with_path_cache=}')
 
     # ¦ list_all_accounts
     def list_all_accounts(self):
@@ -37,7 +45,7 @@ class OrganizationsHelper:
         account_name = account_info.get('Account', {}).get('Name', 'n/a')
         account_status = account_info.get('Account', {}).get('Status', 'n/a')
         caller_ou_id, caller_ou_id_with_path = self._get_ou_id_with_path(member_account_id)
-        caller_ou_name, caller_ou_name_with_path = self._get_ou_name_with_path(caller_ou_id)
+        caller_ou_name, caller_ou_name_with_path = self._get_ou_name_with_path(member_account_id)
         caller_account_tags = self._get_tags(member_account_id)
         ou_tags = self._get_tags(caller_ou_id) if caller_ou_id else {}
 
@@ -52,28 +60,65 @@ class OrganizationsHelper:
             'ouNameWithPath': caller_ou_name_with_path,
             'ouTags': ou_tags
         }
+        
+    # ¦ _get_organization_id
+    def _get_organization_id(self):
+        try:
+            response = self.organizations_client.describe_organization()
+            return response['Organization']['Id']
+        except Exception as e:
+            self.logger.error(f"Error getting organization ID: {e}")
+        return None
+
+    # ¦ _get_organization_roots
+    def _get_organization_roots(self):
+        try:
+            roots = {}
+            response = self.organizations_client.list_roots()
+            for root in response['Roots']:
+                root_id = root['Id']
+                roots[root_id] = root
+            return roots
+        except Exception as e:
+            self.logger.error(f"Error getting organization roots: {e}")
+        return {}
+    
+    # ¦ _get_parent_ou
+    def _get_parent_ou(self, child_id):
+        if child_id in self.roots:
+            self.logger.error(f"this should not happen")            
+            return None, "ROOT"
+        else:
+            if child_id in self.parents_cache:
+                parent = self.parents_cache[child_id]
+                return parent[0], parent[1]
+            else:
+                parents = self.organizations_client.list_parents(ChildId=child_id)
+                parent = parents['Parents'][0]
+                parent_ou_id = parent['Id']
+                parent_type = parent['Type']
+                self.parents_cache[child_id] = (parent_ou_id, parent_type)
+                return parent_ou_id, parent_type
 
     # ¦ _get_ou_id_with_path
     def _get_ou_id_with_path(self, account_id):
         try:
             ou_id_path = []
-            child_id = account_id
-            while True:
-                parents = self.organizations_client.list_parents(ChildId=child_id)
-                parent = parents['Parents'][0]
-                parent_ou_id = parent['Id']
-                
-                ou_id_path.append(parent_ou_id)
-                if parent_ou_id in self.ou_id_with_path_cache:
-                    entry = self.ou_id_with_path_cache[parent_ou_id]
-                    return entry.get('ou_id'), entry.get('ou_id_path_str')
-                else:
-                    if parent['Type'] == 'ROOT':
-                        ou_id_path_str = "/".join(reversed(ou_id_path))
-                        self.ou_id_with_path_cache[parent_ou_id] = (parent_ou_id, ou_id_path_str)
-                        return parent_ou_id, ou_id_path_str
+            direct_parent_ou_id, parent_type = self._get_parent_ou(account_id)
+            
+            if direct_parent_ou_id in self.ou_id_with_path_cache:
+                entry = self.ou_id_with_path_cache[direct_parent_ou_id]
+                return entry[0], entry[1]
+            else:
+                parent_ou_id = direct_parent_ou_id
+                while True:                    
+                    ou_id_path.append(parent_ou_id)
+                    if parent_type == 'ROOT':
+                        ou_id_path_str = f'{self.org_id}/{"/".join(reversed(ou_id_path))}'
+                        self.ou_id_with_path_cache[direct_parent_ou_id] = (direct_parent_ou_id, ou_id_path_str)
+                        return direct_parent_ou_id, ou_id_path_str
                     else:
-                        child_id = parent_ou_id
+                        parent_ou_id, parent_type = self._get_parent_ou(parent_ou_id)
                         
         except Exception as e:
             self.logger.error(f"Error getting OU ID with path for account {account_id}: {e}")
@@ -101,33 +146,26 @@ class OrganizationsHelper:
     def _get_ou_name_with_path(self, account_id):
         try:
             ou_name_path = []
-            child_id = account_id
-            while True:
-                parents = self.organizations_client.list_parents(ChildId=child_id)
-                parent = parents['Parents'][0]
-                parent_ou_id = parent['Id']
-                
-                if parent_ou_id in self.ou_name_with_path_cache:
-                    entry = self.ou_name_with_path_cache[parent_ou_id]
-                    return entry.get('ou_name'), entry.get('ou_name_path_str')
-                else:
-                    parent_type = parent['Type']
+            direct_parent_ou_id, parent_type = self._get_parent_ou(account_id)
+            
+            if direct_parent_ou_id in self.ou_name_with_path_cache:
+                entry = self.ou_name_with_path_cache[direct_parent_ou_id]
+                return entry[0], entry[1]
+            else:
+                direct_parent_ou_name = "Root" if parent_type == 'ROOT' else self._get_ou_name(direct_parent_ou_id)
+                parent_ou_id = direct_parent_ou_id
+                while True:
                     parent_ou_name = "Root" if parent_type == 'ROOT' else self._get_ou_name(parent_ou_id)
-
-                    if child_id == account_id:
-                        ou_name = parent_ou_name
-
                     ou_name_path.append(parent_ou_name)
-
                     if parent_type == 'ROOT':
                         ou_name_path_str = "/".join(reversed(ou_name_path))
-                        self.ou_name_with_path_cache[parent_ou_id] = (ou_name, ou_name_path_str)
-                        return ou_name, ou_name_path_str
+                        self.ou_name_with_path_cache[direct_parent_ou_id] = (direct_parent_ou_name, ou_name_path_str)
+                        return direct_parent_ou_name, ou_name_path_str
                     else:
-                        child_id = parent_ou_id
+                        parent_ou_id, parent_type = self._get_parent_ou(parent_ou_id)
                         
         except Exception as e:
-            self.logger.error(f"Error getting OU name with path for account {account_id}: {e}")
+            self.logger.error(f"Error getting OU ID with path for account {account_id}: {e}")
         return "", ""
 
     # ¦ _describe_account

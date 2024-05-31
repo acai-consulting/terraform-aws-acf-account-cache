@@ -60,10 +60,11 @@ class ContextCache:
             cache_entry = self._context_cache_entry_get(account_id, "AccountContext")
         if cache_entry is None:
             from_api = self.organizations_helper.get_member_account_context(account_id)
-            if not from_api:
+            if from_api is not None:
                 self._context_cache_entry_add(account_id, "AccountContext", from_api)
                 self.logger.debug("Loaded account-context from API and stored to cache-store and local-cache")
             else: 
+                self.logger.info(from_api)
                 self.logger.info(f"Account {account_id} was not found.")
             return from_api            
         return cache_entry

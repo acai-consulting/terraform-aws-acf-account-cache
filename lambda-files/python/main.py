@@ -12,8 +12,8 @@ DDB_TTL_TAG_NAME = os.environ.get('DDB_TTL_TAG_NAME', 'cache_ttl_in_minutes')
 def lambda_handler(event, context):
     try:
         context_cache = ContextCache(LOGGER, ORG_READER_ROLE_ARN, CONTEXT_CACHE_TABLE_NAME)
-        if event.get('account_id', None):
-            return context_cache
+        if event.get('account_id', None) != None:
+            return context_cache.get_member_account_context(event.get('account_id'))
         elif event.get('action', '').lower() == 'reset':
             context_cache.reset_cache()
         else:
