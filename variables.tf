@@ -17,11 +17,12 @@ variable "settings" {
       alias_name              = optional(string, "alias/acai-account-cache-key")
       deletion_window_in_days = optional(number, 30)
       policy_override         = optional(list(string), null) # should override the statement_ids 'ReadPermissions' or 'ManagementPermissions'
+      allowed_principals      = optional(list(string), [])
       }), {
       alias_name              = "alias/acai-account-cache-key"
       deletion_window_in_days = 30
       policy_override         = null
-      allowed_principals      = optional(list(string), [])
+      allowed_principals      = []
     })
     cache_ttl_in_minutes = optional(number, 90)
     org_reader_role_arn  = string
