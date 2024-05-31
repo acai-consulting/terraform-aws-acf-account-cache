@@ -47,17 +47,18 @@ class ContextCache:
 
         for account in all_accounts:
             account_id = account['Id']
-            self.get_member_account_context(account_id)
+            self.get_member_account_context(account_id, load_from_api = True)
 
     def get_all_account_contexts(self):
         self.refresh_cache()
         return self.local_cache
 
-    def get_member_account_context(self, account_id):
-        # If not in local cache or expired, check DynamoDB cache
-        cache_entry = self._context_cache_entry_get(account_id, "AccountContext")
+    def get_member_account_context(self, account_id, load_from_api = False):
+        cache_entry = None
+        if not load_from_api:
+            # If not in local cache or expired, check DynamoDB cache
+            cache_entry = self._context_cache_entry_get(account_id, "AccountContext")
         if cache_entry is None:
-            # If not in DynamoDB cache, get from API and update both caches
             from_api = self.organizations_helper.get_member_account_context(account_id)
             if not from_api:
                 self._context_cache_entry_add(account_id, "AccountContext", from_api)
@@ -72,6 +73,7 @@ class ContextCache:
 
     # ¦ _context_cache_entry_get
     def _context_cache_entry_get(self, account_id, context_id):
+        # If not in DynamoDB cache, get from API and update both caches
         if account_id in self.local_cache:
             local_entry = self.local_cache[account_id]
             if local_entry['timeToExist'] > time.time():

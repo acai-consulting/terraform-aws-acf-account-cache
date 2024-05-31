@@ -2,12 +2,12 @@
 # ¦ VERSIONS
 # ---------------------------------------------------------------------------------------------------------------------
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.3.10"
 
   required_providers {
     aws = {
       source                = "hashicorp/aws"
-      version               = ">= 4.0"
+      version               = ">= 4.47"
       configuration_aliases = []
     }
   }
@@ -23,16 +23,7 @@ data "aws_region" "current" {}
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  resource_tags = merge(
-    var.resource_tags,
-    {
-      "module_provider" = "ACAI GmbH",
-      "module_name"     = "terraform-aws-acf-account-cache",
-      "module_source"   = "github.com/acai-consulting/terraform-aws-acf-account-cache",
-      "module_version"  = /*inject_version_start*/ "1.0.0" /*inject_version_end*/
-      "module_sub_path" = "consumer"
-    }
-  )
+  resource_tags = var.resource_tags
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -47,7 +38,7 @@ module "lambda_account_cache_consumer" {
     function_name = "account-cache-consumer"
     description   = "Maintain and query the account-cache."
     layer_arn_list = [
-      var.cache_lambda_layer_arn 
+      var.cache_lambda_layer_arn
     ]
     handler = "main.lambda_handler"
     config  = var.lambda_settings
@@ -64,7 +55,7 @@ module "lambda_account_cache_consumer" {
       CONTEXT_CACHE_TABLE_NAME = var.ddb_name
     }
   }
-  resource_tags        = local.resource_tags
+  resource_tags = local.resource_tags
 }
 
 
