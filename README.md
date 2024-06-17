@@ -113,7 +113,7 @@ resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachmen
 
 ## Scale-Up
 
-Contact us ( contact@acai.gmbh ), if you are looking for ways to query your AWS account-context cache with statements like this:
+[Contact us](mailto:contact@acai.gmbh), if you are looking for ways to query your AWS account-context cache with statements like this:
 
 ```python
 # will select all AWS Accounts where the account-tag "environment" is not "nonprod"

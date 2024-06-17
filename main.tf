@@ -294,32 +294,36 @@ resource "aws_dynamodb_table" "context_cache" {
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA
+# ¦ LAMBDA LAYER
 # ---------------------------------------------------------------------------------------------------------------------
-data "archive_file" "lambda_package" {
+data "archive_file" "lambda_layer_package" {
   type        = "zip"
-  source_dir  = "${path.module}/lambda-files"
-  output_path = "${path.module}/lambda-files/zipped_package.zip"
+  source_dir  = "${path.module}/lambda-layer-files"
+  output_path = "${path.module}/lambda-layer-files/zipped_package.zip"
 }
 
-resource "aws_lambda_layer_version" "layer" {
+resource "aws_lambda_layer_version" "lambda_layer" {
   layer_name               = var.settings.lambda_layer_name
-  filename                 = data.archive_file.lambda_package.output_path
+  filename                 = data.archive_file.lambda_layer_package.output_path
   compatible_runtimes      = [var.lambda_settings.runtime]
   compatible_architectures = [var.lambda_settings.architecture]
-  source_code_hash         = data.archive_file.lambda_package.output_sha256
+  source_code_hash         = data.archive_file.lambda_layer_package.output_sha256
 }
 
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ LAMBDA
+# ---------------------------------------------------------------------------------------------------------------------
 module "lambda_account_cache" {
   #checkov:skip=CKV_TF_1: Currently version-tags are used
   source  = "acai-consulting/lambda/aws"
-  version = "~> 1.3.2"
+  version = "1.3.4"
 
   lambda_settings = {
     function_name = var.settings.lambda_name
     description   = "Maintain and query the account-cache."
     layer_arn_list = [
       replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name),
+      aws_lambda_layer_version.lambda_layer.arn
     ]
     handler = "main.lambda_handler"
     config  = var.lambda_settings
@@ -327,7 +331,7 @@ module "lambda_account_cache" {
       central_collector = var.lambda_settings.error_forwarder
     }
     package = {
-      source_path = "${path.module}/lambda-files/python"
+      source_path = "${path.module}/lambda-files/"
     }
     tracing_mode = var.lambda_settings.tracing_mode
     environment_variables = {
@@ -335,6 +339,7 @@ module "lambda_account_cache" {
       ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
       CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
       DDB_TTL_TAG_NAME         = local.ddb_ttl_tag_name
+      DROP_ATTRIBUTES          = join(",", var.settings.drop_attributes)
     }
   }
   execution_iam_role_settings = {
@@ -353,6 +358,19 @@ resource "aws_lambda_invocation" "invoke" {
 
   input = <<JSON
 {
+  "action": "refresh"
 }
 JSON
+}
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ API ENDPOINT
+# ---------------------------------------------------------------------------------------------------------------------
+module "api_endpoint" {
+  source          = "./modules/api-endpoint"
+  count           = var.settings.api_settings != null ? 1 : 0
+  api_settings    = var.settings.api_settings
+  lambda_settings = module.lambda_account_cache.lambda
+  resource_tags   = local.resource_tags
 }
