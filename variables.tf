@@ -25,7 +25,15 @@ variable "settings" {
       allowed_principals      = []
     })
     cache_ttl_in_minutes = optional(number, 90)
-    org_reader_role_arn  = string
+    api_settings = optional(object({
+      api_key_name      = optional(string, "acai-cache-key")
+      api_name          = optional(string, "acai-cache")
+      api_description   = optional(string, "API to access the account context cache.")
+      api_stage_name    = optional(string, "v1")
+      api_endpoint_name = optional(string, "cache")
+    }), null)
+    org_reader_role_arn = string
+    drop_attributes     = optional(list(string), [])
   })
 }
 

@@ -37,3 +37,7 @@ override.tf.json
 *.tfx
 *.zip
 
+__pycache__
+*.pyc
+
+
