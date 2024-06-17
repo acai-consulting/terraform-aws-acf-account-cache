@@ -32,8 +32,8 @@ variable "settings" {
       api_stage_name    = optional(string, "v1")
       api_endpoint_name = optional(string, "cache")
     }), null)
-    org_reader_role_arn  = string
-    drop_attributes = optional(list(string), [])
+    org_reader_role_arn = string
+    drop_attributes     = optional(list(string), [])
   })
 }
 
