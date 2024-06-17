@@ -1,5 +1,5 @@
 import os
-from context_cache import ContextCache
+from acai.cache.context_cache import ContextCache
 import logging
 LOGLEVEL = os.environ.get('LOG_LEVEL', 'DEBUG').upper()
 logging.getLogger().setLevel(LOGLEVEL)
