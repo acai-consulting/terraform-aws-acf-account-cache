@@ -174,7 +174,8 @@ selection = cache.query({
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_lambda_account_cache"></a> [lambda\_account\_cache](#module\_lambda\_account\_cache) | acai-consulting/lambda/aws | ~> 1.3.2 |
+| <a name="module_api_endpoint"></a> [api\_endpoint](#module\_api\_endpoint) | ./modules/api-endpoint | n/a |
+| <a name="module_lambda_account_cache"></a> [lambda\_account\_cache](#module\_lambda\_account\_cache) | acai-consulting/lambda/aws | 1.3.4 |
 
 ## Resources
 
@@ -187,8 +188,8 @@ selection = cache.query({
 | [aws_kms_alias.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_lambda_invocation.invoke](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
-| [aws_lambda_layer_version.layer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_layer_version) | resource |
-| [archive_file.lambda_package](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
+| [aws_lambda_layer_version.lambda_layer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_layer_version) | resource |
+| [archive_file.lambda_layer_package](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_account_cache_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -199,7 +200,7 @@ selection = cache.query({
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_settings"></a> [settings](#input\_settings) | n/a | <pre>object({<br>    lambda_name       = optional(string, "acai-account-cache")<br>    lambda_schedule   = optional(string, "rate(30 minutes)")<br>    lambda_layer_name = optional(string, "acai-account-cache-layer")<br>    lambda_iam_role = optional(object({<br>      name                     = optional(string, "acai-account-cache-lambda-role")<br>      path                     = optional(string, "/")<br>      permissions_boundary_arn = optional(string, null)<br>      }), {<br>      name                     = "acai-account-cache-lambda-role"<br>      path                     = "/"<br>      permissions_boundary_arn = null<br>    })<br>    ddb_name = optional(string, "acai-account-cache")<br>    kms_cmk = optional(object({<br>      alias_name              = optional(string, "alias/acai-account-cache-key")<br>      deletion_window_in_days = optional(number, 30)<br>      policy_override         = optional(list(string), null) # should override the statement_ids 'ReadPermissions' or 'ManagementPermissions'<br>      allowed_principals      = optional(list(string), [])<br>      }), {<br>      alias_name              = "alias/acai-account-cache-key"<br>      deletion_window_in_days = 30<br>      policy_override         = null<br>      allowed_principals      = []<br>    })<br>    cache_ttl_in_minutes = optional(number, 90)<br>    org_reader_role_arn  = string<br>  })</pre> | n/a | yes |
+| <a name="input_settings"></a> [settings](#input\_settings) | n/a | <pre>object({<br>    lambda_name       = optional(string, "acai-account-cache")<br>    lambda_schedule   = optional(string, "rate(30 minutes)")<br>    lambda_layer_name = optional(string, "acai-account-cache-layer")<br>    lambda_iam_role = optional(object({<br>      name                     = optional(string, "acai-account-cache-lambda-role")<br>      path                     = optional(string, "/")<br>      permissions_boundary_arn = optional(string, null)<br>      }), {<br>      name                     = "acai-account-cache-lambda-role"<br>      path                     = "/"<br>      permissions_boundary_arn = null<br>    })<br>    ddb_name = optional(string, "acai-account-cache")<br>    kms_cmk = optional(object({<br>      alias_name              = optional(string, "alias/acai-account-cache-key")<br>      deletion_window_in_days = optional(number, 30)<br>      policy_override         = optional(list(string), null) # should override the statement_ids 'ReadPermissions' or 'ManagementPermissions'<br>      allowed_principals      = optional(list(string), [])<br>      }), {<br>      alias_name              = "alias/acai-account-cache-key"<br>      deletion_window_in_days = 30<br>      policy_override         = null<br>      allowed_principals      = []<br>    })<br>    cache_ttl_in_minutes = optional(number, 90)<br>    api_settings = optional(object({<br>      api_key_name      = optional(string, "acai-cache-key")<br>      api_name          = optional(string, "acai-cache")<br>      api_description   = optional(string, "API to access the account context cache.")<br>      api_stage_name    = optional(string, "v1")<br>      api_endpoint_name = optional(string, "cache")<br>    }), null)<br>    org_reader_role_arn = string<br>    drop_attributes     = optional(list(string), [])<br>  })</pre> | n/a | yes |
 | <a name="input_lambda_settings"></a> [lambda\_settings](#input\_lambda\_settings) | HCL map of the Lambda-Settings. | <pre>object({<br>    architecture          = optional(string, "x86_64")<br>    runtime               = optional(string, "python3.10")<br>    log_level             = optional(string, "INFO") # Logging level, e.g. "INFO"<br>    log_retention_in_days = optional(number, 7)      # Retention period for log files, in days<br>    error_forwarder = optional(object({<br>      target_name = string<br>      target_arn  = string<br>    }), null)<br>    memory_size  = optional(number, 512) # Size of the memory, in MB<br>    timeout      = optional(number, 720) # Timeout for the function, in seconds<br>    tracing_mode = optional(string, "Active")<br>    layer_arns = optional(map(any), {<br>      "aws_lambda_powertools_python_layer_arn" = "arn:aws:lambda:$region:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"<br>    })<br>  })</pre> | <pre>{<br>  "architecture": "x86_64",<br>  "error_forwarder": null,<br>  "layer_arns": {<br>    "aws_lambda_powertools_python_layer_arn": "arn:aws:lambda:$region:017000801446:layer:AWSLambdaPowertoolsPythonV2:40"<br>  },<br>  "log_level": "INFO",<br>  "log_retention_in_days": 7,<br>  "memory_size": 512,<br>  "runtime": "python3.10",<br>  "timeout": 720,<br>  "tracing_mode": "Active"<br>}</pre> | no |
 | <a name="input_resource_tags"></a> [resource\_tags](#input\_resource\_tags) | Tags for the resources | `map(string)` | `{}` | no |
 
@@ -207,10 +208,11 @@ selection = cache.query({
 
 | Name | Description |
 |------|-------------|
-| <a name="output_cache_lambda_layer_arn"></a> [cache\_lambda\_layer\_arn](#output\_cache\_lambda\_layer\_arn) | n/a |
-| <a name="output_cache_lambda_permission_policy_arn"></a> [cache\_lambda\_permission\_policy\_arn](#output\_cache\_lambda\_permission\_policy\_arn) | n/a |
-| <a name="output_ddb_name"></a> [ddb\_name](#output\_ddb\_name) | n/a |
-| <a name="output_ddb_ttl_tag_name"></a> [ddb\_ttl\_tag\_name](#output\_ddb\_ttl\_tag\_name) | n/a |
+| <a name="output_api_endpoint"></a> [api\_endpoint](#output\_api\_endpoint) | api\_endpoint |
+| <a name="output_cache_lambda_layer_arn"></a> [cache\_lambda\_layer\_arn](#output\_cache\_lambda\_layer\_arn) | cache\_lambda\_layer\_arn |
+| <a name="output_cache_lambda_permission_policy_arn"></a> [cache\_lambda\_permission\_policy\_arn](#output\_cache\_lambda\_permission\_policy\_arn) | cache\_lambda\_permission\_policy\_arn |
+| <a name="output_ddb_name"></a> [ddb\_name](#output\_ddb\_name) | ddb\_name |
+| <a name="output_ddb_ttl_tag_name"></a> [ddb\_ttl\_tag\_name](#output\_ddb\_ttl\_tag\_name) | ddb\_ttl\_tag\_name |
 <!-- END_TF_DOCS -->
 
 <!-- AUTHORS -->
