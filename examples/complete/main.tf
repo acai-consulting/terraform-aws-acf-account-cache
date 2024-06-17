@@ -72,7 +72,7 @@ module "cache_consumer" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ INVOKE LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_lambda_invocation" "invoke_cache_consumer_1" {
+resource "aws_lambda_invocation" "invoke_cache_consumer" {
   function_name = module.cache_consumer.lambda_name
 
   input    = <<JSON
