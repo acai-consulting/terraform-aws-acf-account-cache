@@ -24,7 +24,7 @@ locals {
       "module_name"     = "terraform-aws-acf-account-cache",
       "module_source"   = "github.com/acai-consulting/terraform-aws-acf-account-cache",
       "module_sub_path" = "org-info-reader"
-      "module_version"  = /*inject_version_start*/ "1.0.0" /*inject_version_end*/
+      "module_version"  = /*inject_version_start*/ "1.1.0" /*inject_version_end*/
     }
   )
 }
