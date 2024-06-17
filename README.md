@@ -116,39 +116,39 @@ resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachmen
 [Contact us](mailto:contact@acai.gmbh), if you are looking for ways to query your AWS account-context cache with statements like this:
 
 ```python
-# will select all AWS Accounts where the account-tag "environment" is not "nonprod"
+# will select all AWS Accounts where the account-tag "environment" is not "Non-Prod"
 selection = cache.query({
   "exclude": {
     "accountTags": {
-        "environment": "nonprod"
+        "environment": "Non-Prod"
     }
   }
 })
 ```
 
 ```python
-# will select all AWS Accounts where "accountName" contains "-core-"
+# will select all AWS Accounts where "accountName" contains "core-"
 selection = cache.query({
     "exclude": "*",
     "forceInclude": {
         "accountName": {
-            "contains": "-core-"
+            "contains": "core-"
         }
     }
 })
 ```
 
 ```python
-# will select all AWS Accounts where the account-tag "environment" is "prod" and that have "department_a_" in their OU-path
+# will select all AWS Accounts where the account-tag "environment" is "Prod" and that have "/Department_1/" in their OU-path
 selection = cache.query({
     "exclude": "*",
     "forceInclude": {
       "accountTags": {
-          "environment": "prod"
+          "environment": "Prod"
       },
       "ouNameWithPath": [
           {
-              "contains": "department_a_"
+              "contains": "/Department_1/"
           }
       ]
     }    
