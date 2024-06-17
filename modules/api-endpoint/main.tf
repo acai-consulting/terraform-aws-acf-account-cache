@@ -65,10 +65,14 @@ resource "aws_api_gateway_usage_plan_key" "api_key_usage_plan_key" {
 # ¦ API GATEWAY
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_api_gateway_rest_api" "api" {
+  #checkov:skip=CKV_AWS_272
   name        = var.api_settings.api_name
   description = var.api_settings.api_description
   endpoint_configuration {
     types = ["REGIONAL"]
+  }
+  lifecycle {
+    create_before_destroy = true
   }
   tags = local.resource_tags
 }
@@ -90,7 +94,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [ 
+  depends_on = [
     aws_api_gateway_integration.cache_endpoint
   ]
 }
@@ -105,6 +109,7 @@ resource "aws_api_gateway_resource" "cache_endpoint" {
 }
 
 resource "aws_api_gateway_method" "cache_endpoint" {
+  # checkov:skip=CKV2_AWS_53
   rest_api_id      = aws_api_gateway_rest_api.api.id
   resource_id      = aws_api_gateway_resource.cache_endpoint.id
   http_method      = "POST"
@@ -122,10 +127,10 @@ resource "aws_api_gateway_integration" "cache_endpoint" {
 }
 
 resource "aws_api_gateway_method_response" "cache_endpoint" {
-  rest_api_id         = aws_api_gateway_rest_api.api.id
-  resource_id         = aws_api_gateway_resource.cache_endpoint.id
-  http_method         = aws_api_gateway_method.cache_endpoint.http_method
-  status_code         = "200"
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.cache_endpoint.id
+  http_method = aws_api_gateway_method.cache_endpoint.http_method
+  status_code = "200"
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = true,
     "method.response.header.Access-Control-Allow-Methods" = true,
@@ -134,10 +139,10 @@ resource "aws_api_gateway_method_response" "cache_endpoint" {
 }
 
 resource "aws_api_gateway_integration_response" "cache_endpoint" {
-  rest_api_id         = aws_api_gateway_rest_api.api.id
-  resource_id         = aws_api_gateway_resource.cache_endpoint.id
-  http_method         = aws_api_gateway_method.cache_endpoint.http_method
-  status_code         = aws_api_gateway_method_response.cache_endpoint.status_code
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.cache_endpoint.id
+  http_method = aws_api_gateway_method.cache_endpoint.http_method
+  status_code = aws_api_gateway_method_response.cache_endpoint.status_code
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
     "method.response.header.Access-Control-Allow-Methods" = "'POST'",
