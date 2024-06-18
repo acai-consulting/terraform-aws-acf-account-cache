@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "IAM Role used to provision the OrganizationStructure"
+
+Resources:
+  OrganizationStructureProvisioningRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "$${target_principal_role_name}"
+      Path: "$${target_principal_role_path}"
+      Description: "IAM Role used to provision the OrganizationStructure"
+$${resource_tags_block}
+      AssumeRolePolicyDocument:
+        #add trust policy here
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              "AWS":
+                - "$${trustee_role_arn}"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: "OrganizationDelegation"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "organizations:TagResource"
+                  - "organizations:UntagResource"
+                Resource: "arn:aws:organizations::*:resourcepolicy/*/rp-*"
+              - Effect: Allow
+                Action:
+                  - "organizations:List*"
+                  - "organizations:Describe*"
+                  - "organizations:PutResourcePolicy"
+                  - "organizations:DeleteResourcePolicy"
+                  - "organizations:RegisterDelegatedAdministrator"
+                  - "organizations:DeregisterDelegatedAdministrator"
+                  - "organizations:EnableAWSServiceAccess"
+                  - "securityhub:DescribeHub"
+                  - "securityhub:ListOrganizationAdminAccounts"
+                  - "securityhub:EnableSecurityHub"
+                  - "securityhub:DisableSecurityHub"
+                  - "securityhub:UpdateSecurityHubConfiguration"
+                  - "securityhub:EnableOrganizationAdminAccount"
+                  - "securityhub:DisableOrganizationAdminAccount"
+                  - "guardduty:CreateDetector"
+                  - "guardduty:GetDetector"
+                  - "guardduty:DeleteDetector"
+                  - "guardduty:ListOrganizationAdminAccounts"
+                  - "guardduty:EnableOrganizationAdminAccount"
+                  - "guardduty:DisableOrganizationAdminAccount"
+                  - "guardduty:TagResource"
+                  - "guardduty:UntagResource"
+                  - "macie2:EnableOrganizationAdminAccount"
+                  - "macie2:ListOrganizationAdminAccounts"
+                  - "macie2:DisableOrganizationAdminAccount"                
+                Resource: "*"
