@@ -21,38 +21,41 @@ $${resource_tags_block}
       Policies:
         - PolicyName: "OrganizationDelegation"
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "organizations:TagResource"
-                  - "organizations:UntagResource"
-                Resource: "arn:aws:organizations::*:resourcepolicy/*/rp-*"
+                  - dynamodb:BatchGetItem
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:UpdateItem
+                Resource: !Sub "arn:aws:dynamodb:$${AWS::Region}:$${AWS::AccountId}:table/${ddb_name}"
               - Effect: Allow
                 Action:
-                  - "organizations:List*"
-                  - "organizations:Describe*"
-                  - "organizations:PutResourcePolicy"
-                  - "organizations:DeleteResourcePolicy"
-                  - "organizations:RegisterDelegatedAdministrator"
-                  - "organizations:DeregisterDelegatedAdministrator"
-                  - "organizations:EnableAWSServiceAccess"
-                  - "securityhub:DescribeHub"
-                  - "securityhub:ListOrganizationAdminAccounts"
-                  - "securityhub:EnableSecurityHub"
-                  - "securityhub:DisableSecurityHub"
-                  - "securityhub:UpdateSecurityHubConfiguration"
-                  - "securityhub:EnableOrganizationAdminAccount"
-                  - "securityhub:DisableOrganizationAdminAccount"
-                  - "guardduty:CreateDetector"
-                  - "guardduty:GetDetector"
-                  - "guardduty:DeleteDetector"
-                  - "guardduty:ListOrganizationAdminAccounts"
-                  - "guardduty:EnableOrganizationAdminAccount"
-                  - "guardduty:DisableOrganizationAdminAccount"
-                  - "guardduty:TagResource"
-                  - "guardduty:UntagResource"
-                  - "macie2:EnableOrganizationAdminAccount"
-                  - "macie2:ListOrganizationAdminAccounts"
-                  - "macie2:DisableOrganizationAdminAccount"                
-                Resource: "*"
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                  - lambda:GetFunction
+                  - lambda:InvokeFunction
+                  - lambda:UpdateFunctionConfiguration
+                  - lambda:UpdateFunctionCode
+                Resource: !Sub "arn:aws:lambda:$${AWS::Region}:$${AWS::AccountId}:function/${lambda_name}"
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                  - kms:DescribeKey
+                Resource: !Sub "arn:aws:kms:$${AWS::Region}:$${AWS::AccountId}:key/${kms_cmk_alias}"
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: !Sub "arn:aws:iam::$${AWS::AccountId}:role/${lambda_iam_role_path}${lambda_iam_role_name}"
+              - Effect: Allow
+                Action:
+                  - api:*
+                Resource: !Sub "arn:aws:api:$${AWS::Region}:$${AWS::AccountId}:*/${api_name}/*"
+
