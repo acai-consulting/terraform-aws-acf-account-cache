@@ -10,11 +10,6 @@ variable "settings" {
       path = "/"
     })
     ddb_name = optional(string, "acai-account-cache")
-    kms_cmk = optional(object({
-      alias_name = optional(string, "alias/acai-account-cache-key")
-      }), {
-      alias_name = "alias/acai-account-cache-key"
-    })
     api_settings = optional(object({
       api_key_name = optional(string, "acai-cache-key")
       api_name     = optional(string, "acai-cache")
@@ -28,9 +23,6 @@ variable "settings" {
       path = "/"
     },
     ddb_name = "acai-account-cache"
-    kms_cmk = {
-      alias_name = "alias/acai-account-cache-key"
-    },
     api_settings = {
       api_key_name = "acai-cache-key"
       api_name     = "acai-cache"

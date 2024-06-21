@@ -41,7 +41,7 @@ $${resource_tags_block}
               - Effect: Allow
                 Action:
                   - kms:*
-                Resource: !Sub "arn:aws:kms:$${AWS::Region}:$${AWS::AccountId}:key/${kms_cmk_alias}"
+                Resource: !Sub "arn:aws:kms:$${AWS::Region}:$${AWS::AccountId}:key/*"
                 Condition:
                   StringEquals:
                     "kms:ResourceTag/module_source": "github.com/acai-consulting/terraform-aws-acf-account-cache"
