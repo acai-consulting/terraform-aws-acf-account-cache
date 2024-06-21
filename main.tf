@@ -110,7 +110,7 @@ data "aws_iam_policy_document" "kms_cmk" {
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
     actions = [
-      #"kms:*", # for develoment only
+      "kms:GenerateDataKey", # for develoment only
       "kms:Create*",
       "kms:Describe*",
       "kms:Enable*",

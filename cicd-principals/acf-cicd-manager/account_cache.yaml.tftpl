@@ -1,13 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "IAM Role used to provision the OrganizationStructure"
+Description: "IAM Role used to provision the ACF Account Cache resources"
 
 Resources:
-  OrganizationStructureProvisioningRole:
+  AccountCacheProvisioningRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: "$${target_principal_role_name}"
       Path: "$${target_principal_role_path}"
-      Description: "IAM Role used to provision the OrganizationStructure"
+      Description: "IAM Role used to provision the Account Cache resources"
 $${resource_tags_block}
       AssumeRolePolicyDocument:
         #add trust policy here
@@ -19,7 +19,7 @@ $${resource_tags_block}
                 - "$${trustee_role_arn}"
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: "OrganizationDelegation"
+        - PolicyName: "AccountCache"
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -27,8 +27,8 @@ $${resource_tags_block}
                 Action:
                   - lambda:*
                 Resource: 
-                  - !Sub "arn:aws:lambda:$$$${AWS::Region}:$$$${AWS::AccountId}:function/${lambda_name}"
-                  - !Sub "arn:aws:lambda:$$$${AWS::Region}:$$$${AWS::AccountId}:function/${lambda_layer_name}"
+                  - !Sub "arn:aws:lambda:$$$${AWS::Region}:$$$${AWS::AccountId}:function:${lambda_name}"
+                  - !Sub "arn:aws:lambda:$$$${AWS::Region}:$$$${AWS::AccountId}:layer:${lambda_layer_name}"
               - Effect: Allow
                 Action:
                   - logs:*
@@ -54,7 +54,9 @@ $${resource_tags_block}
                 Action:
                   - apigateway:*
                 Resource: 
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}:$$$${AWS::AccountId}:restapis/${api_name}/*"
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}:$$$${AWS::AccountId}:apikeys/*"
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}:$$$${AWS::AccountId}:usageplans/*"
+                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::restapis"
+                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::restapis/${api_name}/*"
+                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::apikeys/*"
+                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::usageplans/*"
+                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::tags/*"
                   
