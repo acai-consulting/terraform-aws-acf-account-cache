@@ -54,4 +54,8 @@ $${resource_tags_block}
               - Effect: Allow
                 Action:
                   - apigateway:*
-                Resource: !Sub "arn:aws:apigateway:$${AWS::Region}:$${AWS::AccountId}:*/${api_name}/*"
+                Resource: 
+                  - !Sub "arn:aws:apigateway:$${AWS::Region}:$${AWS::AccountId}:restapis/${api_name}/*"
+                  - !Sub "arn:aws:apigateway:$${AWS::Region}:$${AWS::AccountId}:apikeys/${api_name}/*"
+                  - !Sub "arn:aws:apigateway:$${AWS::Region}:$${AWS::AccountId}:usageplans/${api_name}/*"
+                  
