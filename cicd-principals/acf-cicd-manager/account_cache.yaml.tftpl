@@ -53,7 +53,5 @@ $${resource_tags_block}
                   - !Sub "arn:aws:iam::$${AWS::AccountId}:polich${policy_name}"
               - Effect: Allow
                 Action:
-                  - api:*
-                Resource: !Sub "arn:aws:api:$${AWS::Region}:$${AWS::AccountId}:*/${api_name}/*"
-
-                  - !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/*'
+                  - apigateway:*
+                Resource: !Sub "arn:aws:apigateway:$${AWS::Region}:$${AWS::AccountId}:*/${api_name}/*"

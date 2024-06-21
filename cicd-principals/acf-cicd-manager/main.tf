@@ -7,6 +7,6 @@ data "template_file" "account_cache" {
     policy_name                = replace(var.settings.lambda_iam_role.name, "role", "policy")
     ddb_name                   = var.settings.ddb_name
     api_key_name               = var.settings.api_settings.api_key_name
-    api_name                   = var.settings.api_settings.api_key_name
+    api_name                   = var.settings.api_settings.api_name
   }
 }
