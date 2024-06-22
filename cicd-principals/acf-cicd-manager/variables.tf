@@ -9,7 +9,7 @@ variable "settings" {
       name = "acai-account-cache-lambda-role"
       path = "/"
     })
-    ddb_name = optional(string, "acai-account-cache")
+    ddb_name     = optional(string, "acai-account-cache")
     api_settings = optional(map(string), null)
   })
   default = {
@@ -19,7 +19,7 @@ variable "settings" {
       name = "acai-account-cache-lambda-role"
       path = "/"
     },
-    ddb_name = "acai-account-cache"
+    ddb_name     = "acai-account-cache"
     api_settings = null
   }
 }

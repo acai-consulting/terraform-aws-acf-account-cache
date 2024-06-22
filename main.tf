@@ -65,12 +65,12 @@ data "aws_iam_policy_document" "lambda_exec_role_trust" {
 # ¦ CONDITIONAL KMS CMK
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_kms_key" "kms_cmk" {
-  count                  = local.kms_cmk_provided ? 1 : 0
-  description            = "This key will be used for encryption the policy repo, CloudWatch LogGroups, sns topics and the configure registry."
+  count                   = local.kms_cmk_provided ? 1 : 0
+  description             = "This key will be used for encryption the policy repo, CloudWatch LogGroups, sns topics and the configure registry."
   deletion_window_in_days = var.settings.kms_cmk.deletion_window_in_days
-  enable_key_rotation    = true
-  policy                 = data.aws_iam_policy_document.kms_cmk[0].json
-  tags                   = local.resource_tags
+  enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.kms_cmk[0].json
+  tags                    = local.resource_tags
 }
 
 resource "aws_kms_alias" "kms_cmk" {
@@ -86,7 +86,7 @@ data "aws_iam_policy_document" "kms_cmk" {
   #checkov:skip=CKV_AWS_109
   #checkov:skip=CKV_AWS_111
 
-  count = local.kms_cmk_provided ? 1 : 0
+  count                     = local.kms_cmk_provided ? 1 : 0
   override_policy_documents = var.settings.kms_cmk.policy_override
 
   # Statement for Read Permissions
