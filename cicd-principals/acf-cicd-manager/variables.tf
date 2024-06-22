@@ -10,7 +10,7 @@ variable "settings" {
       path = "/"
     })
     ddb_name = optional(string, "acai-account-cache")
-    api_settings = optional(map(), null)
+    api_settings = optional(map(string), null)
   })
   default = {
     lambda_name       = "acai-account-cache"
