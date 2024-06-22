@@ -32,6 +32,7 @@ locals {
       "module_version"  = /*inject_version_start*/ "1.1.0" /*inject_version_end*/
     }
   )
+  kms_cmk_provided = var.settings.kms_cmk != null
   ddb_ttl_tag_name = "cache_ttl_in_minutes"
 }
 
@@ -61,19 +62,21 @@ data "aws_iam_policy_document" "lambda_exec_role_trust" {
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ KMS CMK
+# ¦ CONDITIONAL KMS CMK
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_kms_key" "kms_cmk" {
+  count                   = local.kms_cmk_provided ? 1 : 0
   description             = "This key will be used for encryption the policy repo, CloudWatch LogGroups, sns topics and the configure registry."
   deletion_window_in_days = var.settings.kms_cmk.deletion_window_in_days
   enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.kms_cmk.json
+  policy                  = data.aws_iam_policy_document.kms_cmk[0].json
   tags                    = local.resource_tags
 }
 
 resource "aws_kms_alias" "kms_cmk" {
+  count         = local.kms_cmk_provided ? 1 : 0
   name          = var.settings.kms_cmk.alias_name
-  target_key_id = aws_kms_key.kms_cmk.key_id
+  target_key_id = aws_kms_key.kms_cmk[0].key_id
 }
 
 #checkov:skip=CKV_AWS_111 : Resources cannot be defined, as KMS Key ARN is not known at creation time
@@ -83,6 +86,7 @@ data "aws_iam_policy_document" "kms_cmk" {
   #checkov:skip=CKV_AWS_109
   #checkov:skip=CKV_AWS_111
 
+  count                     = local.kms_cmk_provided ? 1 : 0
   override_policy_documents = var.settings.kms_cmk.policy_override
 
   # Statement for Read Permissions
@@ -110,11 +114,9 @@ data "aws_iam_policy_document" "kms_cmk" {
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
     actions = [
-      #"kms:*", # for develoment only
       "kms:Create*",
       "kms:Describe*",
       "kms:Enable*",
-      "kms:Encrypt",
       "kms:List*",
       "kms:Put*",
       "kms:Update*",
@@ -125,7 +127,8 @@ data "aws_iam_policy_document" "kms_cmk" {
       "kms:TagResource",
       "kms:UntagResource",
       "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:CancelKeyDeletion",
+      "kms:RotateKeyOnDemand"
     ]
     resources = ["*"]
   }
@@ -220,22 +223,25 @@ data "aws_iam_policy_document" "lambda_account_cache_permissions" {
     ]
     resources = [aws_dynamodb_table.context_cache.arn]
   }
-  statement {
-    sid    = "AllowKmsFull"
-    effect = "Allow"
-    actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:ReEncryptFrom",
-      "kms:ReEncrpytTo",
-      "kms:GenerateDataKey",
-      "kms:GenerateDataKeyPair",
-      "kms:GenerateDataKeyPairWithoutPlaintext",
-      "kms:GenerateDataKeyWithoutPlaintext",
-      "kms:DescribeKey",
-      "kms:CreateGrant"
-    ]
-    resources = [aws_kms_key.kms_cmk.arn]
+  dynamic "statement" {
+    for_each = local.kms_cmk_provided == true ? [1] : []
+    content {
+      sid    = "AllowKmsFull"
+      effect = "Allow"
+      actions = [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncryptFrom",
+        "kms:ReEncrpytTo",
+        "kms:GenerateDataKey",
+        "kms:GenerateDataKeyPair",
+        "kms:GenerateDataKeyPairWithoutPlaintext",
+        "kms:GenerateDataKeyWithoutPlaintext",
+        "kms:DescribeKey",
+        "kms:CreateGrant"
+      ]
+      resources = [aws_kms_key.kms_cmk[0].arn]
+    }
   }
   statement {
     sid    = "AllowStsGetCallerIdentity"
@@ -265,7 +271,7 @@ resource "aws_dynamodb_table" "context_cache" {
   billing_mode = "PAY_PER_REQUEST"
   server_side_encryption {
     enabled     = true
-    kms_key_arn = aws_kms_key.kms_cmk.arn
+    kms_key_arn = local.kms_cmk_provided ? aws_kms_key.kms_cmk[0].arn : null
   }
   ttl {
     attribute_name = "timeToExist"
@@ -342,10 +348,13 @@ module "lambda_account_cache" {
       DROP_ATTRIBUTES          = join(",", var.settings.drop_attributes)
     }
   }
+  trigger_settings = {
+    schedule_expression = var.settings.lambda_schedule
+  }
   execution_iam_role_settings = {
     existing_iam_role_name = aws_iam_role.lambda_exec_role.name
   }
-  existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
+  existing_kms_cmk_arn = local.kms_cmk_provided ? aws_kms_key.kms_cmk[0].arn : null
   resource_tags        = local.resource_tags
   depends_on           = [aws_iam_role.lambda_exec_role]
 }

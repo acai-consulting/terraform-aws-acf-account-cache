@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "IAM Role used to provision the ACF Account Cache resources"
+
+Resources:
+  AccountCacheProvisioningRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "$${target_principal_role_name}"
+      Path: "$${target_principal_role_path}"
+      Description: "IAM Role used to provision the Account Cache resources"
+$${resource_tags_block}
+      AssumeRolePolicyDocument:
+        #add trust policy here
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              "AWS":
+                - "$${trustee_role_arn}"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: "AccountCache"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:*
+                Resource: 
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:function:${lambda_name}"
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:function:${lambda_name}:*"
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:layer:${lambda_layer_name}"
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:layer:${lambda_layer_name}:*"
+                  - !Sub "arn:aws:lambda:eu-central-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:*"
+              - Effect: Allow
+                Action:
+                  - events:*
+                Resource: !Sub "arn:aws:events:*:$$$${AWS::AccountId}:rule/${lambda_name}-schedule"
+              - Effect: Allow
+                Action:
+                  - logs:Describe*
+                  - logs:List*
+                Resource: 
+                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:*"
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: 
+                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}"
+                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}:log-stream:*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource: !Sub "arn:aws:dynamodb:*:$$$${AWS::AccountId}:table/${ddb_name}"
+              - Effect: Allow
+                Action:
+                  - iam:*
+                Resource: 
+                  - !Sub "arn:aws:iam::$$$${AWS::AccountId}:role${lambda_exec_role_with_path}"
+                  - !Sub "arn:aws:iam::$$$${AWS::AccountId}:policy/${policy_name}"
+%{ if include_api_gateway == true }
+              - Effect: Allow
+                Action:
+                  - apigateway:*
+                Resource: 
+                  - "arn:aws:apigateway:*::restapis"
+                  - "arn:aws:apigateway:*::restapis/*"
+                  - "arn:aws:apigateway:*::apikeys"
+                  - "arn:aws:apigateway:*::apikeys/*"
+                  - "arn:aws:apigateway:*::usageplans"
+                  - "arn:aws:apigateway:*::usageplans/*"
+                  - "arn:aws:apigateway:*::tags/*"
+%{ endif ~}
