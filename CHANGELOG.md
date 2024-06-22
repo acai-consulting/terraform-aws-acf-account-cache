@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.1.0...1.1.1) (2024-06-22)
+
+
+### Bug Fixes
+
+* add cicd principal ([#4](https://github.com/acai-consulting/terraform-aws-acf-account-cache/issues/4)) ([d1adc11](https://github.com/acai-consulting/terraform-aws-acf-account-cache/commit/d1adc115349c88d460e72f76a716a9476572f2b9))
+
 ## [1.1.0](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.0.0...1.1.0) (2024-06-17)
 
 
