@@ -40,13 +40,15 @@ $${resource_tags_block}
                 Action:
                   - logs:Describe*
                   - logs:List*
-                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:*"
-                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group::logstream:*"
+                Resource: 
+                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:*"
+                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group::log-stream:*"
               - Effect: Allow
                 Action:
                   - logs:*
-                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}"
-                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}:logstream:*"
+                Resource: 
+                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}"
+                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}:log-stream:*"
               - Effect: Allow
                 Action:
                   - dynamodb:*
