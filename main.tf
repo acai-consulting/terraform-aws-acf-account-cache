@@ -224,7 +224,7 @@ data "aws_iam_policy_document" "lambda_account_cache_permissions" {
     resources = [aws_dynamodb_table.context_cache.arn]
   }
   dynamic "statement" {
-    for_each = local.kms_cmk_provided
+    for_each = local.kms_cmk_provided == true ? [1] : []
     content {
       sid    = "AllowKmsFull"
       effect = "Allow"
@@ -354,7 +354,7 @@ module "lambda_account_cache" {
   execution_iam_role_settings = {
     existing_iam_role_name = aws_iam_role.lambda_exec_role.name
   }
-  existing_kms_cmk_arn = aws_kms_key.kms_cmk.arn
+  existing_kms_cmk_arn = local.kms_cmk_provided ? aws_kms_key.kms_cmk[0].arn : null
   resource_tags        = local.resource_tags
   depends_on           = [aws_iam_role.lambda_exec_role]
 }
