@@ -69,7 +69,7 @@ resource "aws_kms_key" "kms_cmk" {
   description            = "This key will be used for encryption the policy repo, CloudWatch LogGroups, sns topics and the configure registry."
   deletion_window_in_days = var.settings.kms_cmk.deletion_window_in_days
   enable_key_rotation    = true
-  policy                 = data.aws_iam_policy_document.kms_cmk.json
+  policy                 = data.aws_iam_policy_document.kms_cmk[0].json
   tags                   = local.resource_tags
 }
 
@@ -347,6 +347,9 @@ module "lambda_account_cache" {
       DDB_TTL_TAG_NAME         = local.ddb_ttl_tag_name
       DROP_ATTRIBUTES          = join(",", var.settings.drop_attributes)
     }
+  }
+  trigger_settings = {
+    schedule_expression = var.settings.lambda_schedule
   }
   execution_iam_role_settings = {
     existing_iam_role_name = aws_iam_role.lambda_exec_role.name
