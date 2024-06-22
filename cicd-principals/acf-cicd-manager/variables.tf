@@ -10,10 +10,7 @@ variable "settings" {
       path = "/"
     })
     ddb_name = optional(string, "acai-account-cache")
-    api_settings = optional(object({
-      api_key_name = optional(string, "acai-cache-key")
-      api_name     = optional(string, "acai-cache")
-    }), null)
+    api_settings = optional(map(), null)
   })
   default = {
     lambda_name       = "acai-account-cache"
@@ -23,10 +20,7 @@ variable "settings" {
       path = "/"
     },
     ddb_name = "acai-account-cache"
-    api_settings = {
-      api_key_name = "acai-cache-key"
-      api_name     = "acai-cache"
-    }
+    api_settings = null
   }
 }
 

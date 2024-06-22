@@ -6,7 +6,6 @@ data "template_file" "account_cache" {
     lambda_exec_role_with_path = replace("/${var.settings.lambda_iam_role.path}/${var.settings.lambda_iam_role.name}", "////", "/")
     policy_name                = replace(var.settings.lambda_iam_role.name, "role", "policy")
     ddb_name                   = var.settings.ddb_name
-    api_key_name               = var.settings.api_settings.api_key_name
-    api_name                   = var.settings.api_settings.api_name
+    include_api_gateway        = var.settings.api_settings != null    
   }
 }

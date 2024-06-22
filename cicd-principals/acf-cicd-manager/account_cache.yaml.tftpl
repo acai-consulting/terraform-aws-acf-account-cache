@@ -27,36 +27,46 @@ $${resource_tags_block}
                 Action:
                   - lambda:*
                 Resource: 
-                  - !Sub "arn:aws:lambda:$$$${AWS::Region}:$$$${AWS::AccountId}:function:${lambda_name}"
-                  - !Sub "arn:aws:lambda:$$$${AWS::Region}:$$$${AWS::AccountId}:layer:${lambda_layer_name}"
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:function:${lambda_name}"
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:function:${lambda_name}:*"
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:layer:${lambda_layer_name}"
+                  - !Sub "arn:aws:lambda:*:$$$${AWS::AccountId}:layer:${lambda_layer_name}:*"
+                  - !Sub "arn:aws:lambda:eu-central-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:*"
+              - Effect: Allow
+                Action:
+                  - events:*
+                Resource: !Sub "arn:aws:events:*:$$$${AWS::AccountId}:rule/${lambda_name}-schedule"
+              - Effect: Allow
+                Action:
+                  - logs:Describe*
+                  - logs:List*
+                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:*"
+                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group::logstream:*"
               - Effect: Allow
                 Action:
                   - logs:*
-                Resource: !Sub "arn:aws:logs:$$$${AWS::Region}:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}"
+                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}"
+                Resource: !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:/aws/lambda/${lambda_name}:logstream:*"
               - Effect: Allow
                 Action:
                   - dynamodb:*
-                Resource: !Sub "arn:aws:dynamodb:$$$${AWS::Region}:$$$${AWS::AccountId}:table/${ddb_name}"
-              - Effect: Allow
-                Action:
-                  - kms:*
-                Resource: !Sub "arn:aws:kms:$$$${AWS::Region}:$$$${AWS::AccountId}:key/*"
-                Condition:
-                  StringEquals:
-                    "kms:ResourceTag/module_source": "github.com/acai-consulting/terraform-aws-acf-account-cache"
+                Resource: !Sub "arn:aws:dynamodb:*:$$$${AWS::AccountId}:table/${ddb_name}"
               - Effect: Allow
                 Action:
                   - iam:*
                 Resource: 
                   - !Sub "arn:aws:iam::$$$${AWS::AccountId}:role${lambda_exec_role_with_path}"
                   - !Sub "arn:aws:iam::$$$${AWS::AccountId}:policy/${policy_name}"
+%{ if include_api_gateway == true }
               - Effect: Allow
                 Action:
                   - apigateway:*
                 Resource: 
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::restapis"
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::restapis/${api_name}/*"
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::apikeys/*"
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::usageplans/*"
-                  - !Sub "arn:aws:apigateway:$$$${AWS::Region}::tags/*"
-                  
+                  - "arn:aws:apigateway:*::restapis"
+                  - "arn:aws:apigateway:*::restapis/*"
+                  - "arn:aws:apigateway:*::apikeys"
+                  - "arn:aws:apigateway:*::apikeys/*"
+                  - "arn:aws:apigateway:*::usageplans"
+                  - "arn:aws:apigateway:*::usageplans/*"
+                  - "arn:aws:apigateway:*::tags/*"
+%{ endif ~}
