@@ -42,7 +42,6 @@ $${resource_tags_block}
                   - logs:List*
                 Resource: 
                   - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group:*"
-                  - !Sub "arn:aws:logs:*:$$$${AWS::AccountId}:log-group::log-stream:*"
               - Effect: Allow
                 Action:
                   - logs:*
