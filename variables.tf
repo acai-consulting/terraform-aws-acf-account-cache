@@ -18,12 +18,7 @@ variable "settings" {
       deletion_window_in_days = optional(number, 30)
       policy_override         = optional(list(string), null) # should override the statement_ids 'ReadPermissions' or 'ManagementPermissions'
       allowed_principals      = optional(list(string), [])
-      }), {
-      alias_name              = "alias/acai-account-cache-key"
-      deletion_window_in_days = 30
-      policy_override         = null
-      allowed_principals      = []
-    })
+      }), null)
     cache_ttl_in_minutes = optional(number, 90)
     api_settings = optional(object({
       api_key_name      = optional(string, "acai-cache-key")
