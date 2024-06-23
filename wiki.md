@@ -18,7 +18,7 @@ This documentation focuses on how to query the ACAI ACF Account Cache, and provi
   - [Basic Expressions](#basic_expressions)
   - [Logical Expressions](#logical_expressions)
   - [Pattern JSON Examples](#acai_json_engine_examples)
-- [Cache-Query Examples](#cache_query_examples)
+- [Cache-Query Examples](#cache_query_examples4)
 
 
 

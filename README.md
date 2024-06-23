@@ -44,6 +44,7 @@ The module retrieves and caches the following account-context data:
 ```
 
 * The account-context cache can be deployed in any AWS account of the AWS Organization.
+* The account-context cache can be queried following this syntax: [query wiki](./wiki.md)
 * Optionally provision the Organization-Info-Reader IAM Role to be assumed from the context cache.
 
 <!-- ARCHITECTURE -->
@@ -109,50 +110,6 @@ resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachmen
   role       = module.lambda_account_cache_consumer.execution_iam_role.name
   policy_arn = module.account_cache.cache_lambda_permission_policy_arn
 }
-```
-
-## Scale-Up
-
-[Contact us](mailto:contact@acai.gmbh), if you are looking for ways to query your AWS account-context cache with statements like this:
-
-```python
-# will select all AWS Accounts where the account-tag "environment" is not "Non-Prod"
-selection = cache.query({
-  "exclude": {
-    "accountTags": {
-        "environment": "Non-Prod"
-    }
-  }
-})
-```
-
-```python
-# will select all AWS Accounts where "accountName" contains "core-"
-selection = cache.query({
-    "exclude": "*",
-    "forceInclude": {
-        "accountName": {
-            "contains": "core-"
-        }
-    }
-})
-```
-
-```python
-# will select all AWS Accounts where the account-tag "environment" is "Prod" and that have "/Department_1/" in their OU-path
-selection = cache.query({
-    "exclude": "*",
-    "forceInclude": {
-      "accountTags": {
-          "environment": "Prod"
-      },
-      "ouNameWithPath": [
-          {
-              "contains": "/Department_1/"
-          }
-      ]
-    }    
-})
 ```
 
 <!-- BEGIN_TF_DOCS -->
