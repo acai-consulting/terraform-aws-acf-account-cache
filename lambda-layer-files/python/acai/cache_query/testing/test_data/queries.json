@@ -1,0 +1,61 @@
+{
+    "query_1": {
+        "exclude": "*",
+        "forceInclude": {
+            "accountTags": {
+                "owner": [
+                    {
+                        "contains": "Foundation"
+                    }
+                ]
+            }
+        }
+    },
+    "query_2_1": {
+        "exclude": {
+            "ouNameWithPath": [
+                {
+                    "contains": "Root/core"
+                }
+            ]
+        }
+    },
+    "query_2_2": {
+        "exclude": [
+            {
+                "ouNameWithPath": [
+                    {
+                        "contains": "Root/core"
+                    }
+                ]
+            },
+            {
+                "ouNameWithPath": "Root"
+            }
+        ]
+    },
+    "query_3": {
+        "exclude": "*",
+        "forceInclude": {
+            "accountTags": {
+                "environment": "Production"
+            }
+        }
+    },
+    "query_4": {
+        "exclude": "*",
+        "forceInclude": {
+            "ouTags": {
+                "owner": "Department B"
+            }
+        }
+    },
+    "query_5": {
+        "exclude": "*",
+        "forceInclude": {
+            "accountName": [{
+                "prefix": "aws-lz-core-"
+            }]
+        }
+    }
+}

@@ -2,6 +2,7 @@ import os
 import logging
 from aws_lambda_powertools import Logger
 from acai.cache.context_cache import ContextCache
+from acai.cache_query.context_cache_query import ContextCacheQuery
 from typing import Any, Dict
 
 # Logging setup
@@ -53,6 +54,17 @@ def handle_action_event(event: Dict[str, Any], context_cache: ContextCache) -> D
 
     if action == 'all':
         return context_cache.get_all_account_contexts()
+
+    if query:
+        context_cache_query = ContextCacheQuery(LOGGER, context_cache)
+        result = context_cache_query.query_cache(query)
+        del result['account_context_list']
+        return {"query": query, "result": result}
+
+    if query_full:
+        context_cache_query = ContextCacheQuery(LOGGER, context_cache)
+        result = context_cache_query.query_cache(query_full)
+        return {"query": query_full, "result": result}
 
     cache_items_count = len(context_cache.get_local_cache())
     LOGGER.info(f"Items in cache-store {CONTEXT_CACHE_TABLE_NAME}: {cache_items_count}")

@@ -1,0 +1,87 @@
+{
+    "pattern_json_1_1": {
+        "accountName": "aws-lz-core-backup"
+    },
+    "pattern_json_1_2": {
+        "accountName": [
+            "aws-lz-org-mgmt",
+            "aws-lz-core-backup"
+        ]
+    },
+    "pattern_json_2": {
+        "accountName": [
+            {
+                "prefix": "aws-lz-org"
+            },
+            {
+                "prefix": "aws-lz-core-"
+            }            
+        ]
+    },
+    "pattern_json_3": {
+        "accounttags": {
+            "owner": [
+                {
+                    "Contains": "Foundation"
+                }
+            ]
+        }
+    },
+    "pattern_json_4": {
+        "accountTags": {
+            "owner": [
+                {
+                    "contains": "Foundation"
+                }
+            ]
+        },
+        "ouNameWithPath": [
+            {
+                "contains": "/core/"
+            }
+        ]
+    },
+    "pattern_json_5": {
+        "accountTags": {
+            "owner": "Workload 1 Team"
+        },
+        "ouNameWithPath": [
+            {
+                "contains": "test_l2"
+            }
+        ]
+    },
+    "pattern_json_6": {
+        "accountTags": {
+            "owner": "Unicorn Team"
+        },
+        "ouNameWithPath": [
+            {
+                "suffix": "/department_a"
+            }
+        ]
+    },
+    "pattern_json_7": {
+        "accountTags": {
+            "environment": "Production"
+        }
+    },
+    "pattern_json_8": {
+        "accountTags": {
+            "environment": [
+                {
+                    "exists": true
+                }
+            ]
+        }
+    },
+    "pattern_json_9": {
+        "accountTags": {
+            "environment": [
+                {
+                    "exists": false
+                }
+            ]
+        }
+    }
+}

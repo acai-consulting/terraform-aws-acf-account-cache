@@ -72,7 +72,7 @@ module "cache_consumer" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ INVOKE LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
-resource "aws_lambda_invocation" "invoke_cache_consumer" {
+data "aws_lambda_invocation" "invoke_cache_consumer_1" {
   function_name = module.cache_consumer.lambda_name
 
   input    = <<JSON
@@ -83,6 +83,23 @@ JSON
   provider = aws.core_security
 }
 
-locals {
-  lambda_result = jsondecode(aws_lambda_invocation.invoke_cache_consumer.result)
+
+data "aws_lambda_invocation" "invoke_cache_consumer_2" {
+  function_name = module.cache_consumer.lambda_name
+
+  input    = <<JSON
+{
+  "query": {
+    "exclude": "*",
+    "forceInclude": {
+        "accountName": [
+          {
+            "prefix": "aws-testbed-core-"
+          }
+        ]
+    }
+  }
+}
+JSON
+  provider = aws.core_security
 }

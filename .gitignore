@@ -1,6 +1,10 @@
 # Local .terraform directories
 **/.terraform/*
 
+# Virtual files for LLM Backend
+**/modules/llm-backend/lambda-files/acai/cache_query/*
+**/modules/llm-backend/lambda-files/wiki.md
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
