@@ -128,6 +128,7 @@ def invoke_bedrock_model(chat_query: str, session_id: str) -> Tuple[str, Dict[st
                     break
                 previous_query = query_json
         except Exception as e:
+            LOGGER.info(response_content.get('content', [{}])[0].get('text', ''))
             LOGGER.error(f"Unhandled exception: {e}", exc_info=True)
 
     conversation_history.append({
