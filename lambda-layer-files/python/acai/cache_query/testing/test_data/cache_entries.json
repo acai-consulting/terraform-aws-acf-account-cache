@@ -1,0 +1,218 @@
+{
+    "471112796356": {
+        "cacheObject": {
+            "accountId": "471112796356",
+            "accountName": "aws-lz-org-mgmt",
+            "accountTags": {
+                "owner": "Foundation Team"
+            },
+            "ouId": "r-s2bx",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx",
+            "ouName": "Root",
+            "ouNameWithPath": "Root",
+            "ouTags": {
+                "owner": "Foundation"
+            }
+        }
+    },
+    "992382728088": {
+        "cacheObject": {
+            "accountId": "992382728088",
+            "accountName": "aws-lz-core-security",
+            "accountTags": {
+                "owner": "Foundation Security Team"
+            },
+            "ouId": "ou-s2bx-wq9eltfy",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-1rsmt2o1/ou-s2bx-wq9eltfy",
+            "ouName": "security",
+            "ouNameWithPath": "Root/core/security",
+            "ouTags": {
+                "owner": "Foundation Security"
+            }
+        }
+    },
+    "590183833356": {
+        "cacheObject": {
+            "accountId": "590183833356",
+            "accountName": "aws-lz-core-logging",
+            "accountTags": {
+                "owner": "Foundation Security Team"
+            },
+            "ouId": "ou-s2bx-wq9eltfy",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-1rsmt2o1/ou-s2bx-wq9eltfy",
+            "ouName": "security",
+            "ouNameWithPath": "Root/core/security",
+            "ouTags": {
+                "owner": "Foundation Security"
+            }
+        }
+    },
+    "654654551440": {
+        "cacheObject": {
+            "accountId": "654654551440",
+            "accountName": "aws-lz-core-backup",
+            "accountTags": {
+                "owner": "Foundation Operations Team"
+            },
+            "ouId": "ou-s2bx-wq9eltfy",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-1rsmt2o1/ou-s2bx-wq9eltfy",
+            "ouName": "security",
+            "ouNameWithPath": "Root/core/security",
+            "ouTags": {
+                "owner": "Foundation Security"
+            }
+        }
+    },
+    "287897423991": {
+        "cacheObject": {
+            "accountId": "287897423991",
+            "accountName": "aws-lz-core-connectivity",
+            "accountTags": {
+                "owner": "Foundation Connectivity Team"
+            },
+            "ouId": "ou-s2bx-5678efgh",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-1rsmt2o1/ou-s2bx-5678efgh",
+            "ouName": "connectivity",
+            "ouNameWithPath": "Root/core/connectivity",
+            "ouTags": {
+                "owner": "Foundation Connectivity"
+            }
+        }
+    },
+    "767398146370": {
+        "cacheObject": {
+            "accountId": "767398146370",
+            "accountName": "aws-lz-workload1-prod",
+            "accountTags": {
+                "owner": "Workload 1 Team",
+                "environment": "Production"
+            },
+            "ouId": "ou-s2bx-9efg0123",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-ab56cdef/ou-s2bx-9efg0123",
+            "ouName": "Department_A",
+            "ouNameWithPath": "Root/workload/department_a",
+            "ouTags": {
+                "owner": "Department A"
+            }
+        }
+    },
+    "734367838296": {
+        "cacheObject": {
+            "accountId": "734367838296",
+            "accountName": "aws-lz-workload1-nonprod",
+            "accountTags": {
+                "owner": "Workload 1 Team",
+                "environment": "NonProduction"
+            },
+            "ouId": "ou-s2bx-9efg0123",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-ab56cdef/ou-s2bx-9efg0123",
+            "ouName": "Department_A",
+            "ouNameWithPath": "Root/workload/department_a",
+            "ouTags": {
+                "owner": "Department A"
+            }
+        }
+    },
+    "803612504196": {
+        "cacheObject": {
+            "accountId": "803612504196",
+            "accountName": "aws-lz-workload4-prod",
+            "accountTags": {
+                "owner": "Unicorn Team",
+                "environment": "Production"
+            },
+            "ouId": "ou-s2bx-9efg0123",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-ab56cdef/ou-s2bx-9efg0123",
+            "ouName": "Department_A",
+            "ouNameWithPath": "Root/workload/department_a",
+            "ouTags": {
+                "owner": "Department A"
+            }
+        }
+    },
+    "711790074192": {
+        "cacheObject": {
+            "accountId": "711790074192",
+            "accountName": "aws-lz-workload4-nonprod",
+            "accountTags": {
+                "owner": "Unicorn Team",
+                "environment": "NonProduction"
+            },
+            "ouId": "ou-s2bx-9efg0123",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-ab56cdef/ou-s2bx-9efg0123",
+            "ouName": "Department_A",
+            "ouNameWithPath": "Root/workload/department_a",
+            "ouTags": {
+                "owner": "Department A"
+            }
+        }
+    },
+    "840093294943": {
+        "cacheObject": {
+            "accountId": "840093294943",
+            "accountName": "aws-lz-workload2-prod",
+            "accountTags": {
+                "owner": "Workload 2 Team",
+                "environment": "Production"
+            },
+            "ouId": "ou-s2bx-23ij4567",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-78efghij/ou-s2bx-23ij4567",
+            "ouName": "Department_B",
+            "ouNameWithPath": "Root/workload/department_b",
+            "ouTags": {
+                "owner": "Department B"
+            }
+        }
+    },
+    "682901893527": {
+        "cacheObject": {
+            "accountId": "682901893527",
+            "accountName": "aws-lz-workload2-nonprod",
+            "accountTags": {
+                "owner": "Workload 2 Team",
+                "environment": "NonProduction"
+            },
+            "ouId": "ou-s2bx-23ij4567",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-78efghij/ou-s2bx-23ij4567",
+            "ouName": "Department_B",
+            "ouNameWithPath": "Root/workload/department_b",
+            "ouTags": {
+                "owner": "Department B"
+            }
+        }
+    },
+    "247715099538": {
+        "cacheObject": {
+            "accountId": "247715099538",
+            "accountName": "aws-lz-workload3-prod",
+            "accountTags": {
+                "owner": "Unicorn Team",
+                "environment": "Production"
+            },
+            "ouId": "ou-s2bx-23ij4567",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-78efghij/ou-s2bx-23ij4567",
+            "ouName": "Department_B",
+            "ouNameWithPath": "Root/workload/department_b",
+            "ouTags": {
+                "owner": "Department B"
+            }
+        }
+    },
+    "452145753797": {
+        "cacheObject": {
+            "accountId": "452145753797",
+            "accountName": "aws-lz-workload3-nonprod",
+            "accountTags": {
+                "owner": "Unicorn Team",
+                "environment": "NonProduction"
+            },
+            "ouId": "ou-s2bx-23ij4567",
+            "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-78efghij/ou-s2bx-23ij4567",
+            "ouName": "Department_B",
+            "ouNameWithPath": "Root/workload/department_b",
+            "ouTags": {
+                "owner": "Department B"
+            }
+        }
+    }
+}

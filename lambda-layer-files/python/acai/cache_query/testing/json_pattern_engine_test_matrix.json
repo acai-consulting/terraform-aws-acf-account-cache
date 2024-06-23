@@ -1,0 +1,158 @@
+{
+    "test_matrix": [
+        {
+            "accountId": "471112796356",
+            "pattern_json_1_1": false, 
+            "pattern_json_1_2": true,
+            "pattern_json_2": true,
+            "pattern_json_3": true,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "992382728088",
+            "pattern_json_1_1": false, 
+            "pattern_json_1_2": false,
+            "pattern_json_2": true,
+            "pattern_json_3": true,
+            "pattern_json_4": true,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "590183833356",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": true,
+            "pattern_json_3": true,
+            "pattern_json_4": true,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "654654551440",
+            "pattern_json_1_1": true,
+            "pattern_json_1_2": true,
+            "pattern_json_2": true,
+            "pattern_json_3": true,
+            "pattern_json_4": true,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "287897423991",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": true,
+            "pattern_json_3": true,
+            "pattern_json_4": true,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "767398146370",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": true
+        },
+        {
+            "accountId": "734367838296",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "803612504196",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": true,
+            "pattern_json_7": true
+        },
+        {
+            "accountId": "711790074192",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": true,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "840093294943",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": true
+        },
+        {
+            "accountId": "840093294943",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": true
+        },
+        {
+            "accountId": "682901893527",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        },
+        {
+            "accountId": "247715099538",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": true
+        },
+        {
+            "accountId": "452145753797",
+            "pattern_json_1_1": false,
+            "pattern_json_1_2": false,
+            "pattern_json_2": false,
+            "pattern_json_3": false,
+            "pattern_json_4": false,
+            "pattern_json_5": false,
+            "pattern_json_6": false,
+            "pattern_json_7": false
+        }
+    ]
+}
