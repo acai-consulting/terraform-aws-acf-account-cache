@@ -13,17 +13,23 @@ class ValidateQuery:
         queries = query if isinstance(query, list) else [query]
 
         for item in queries:
-            validation_result = self._validate_query(item)
+            validation_result = self.validate_query(item)
             if validation_result:
-                validation_results.append({
-                    "query": item,
-                    "validation_errors": validation_result
-                })
+                validation_results.append(validation_result)
 
         return validation_results
 
-    # ¦ _validate_query
-    def _validate_query(self, query: Dict[str, Any]) -> List[str]:
+    # ¦ validate_query
+    def validate_query(self, query: Dict[str, Any]) -> List[str]:
+        return {
+            "query": query,
+            "validation_errors": self._validate(query)
+        }
+        
+        
+    # ¦ _validate
+    def _validate(self, query: Dict[str, Any]) -> List[str]:
+        
         def evaluate_query(validation_results: List[str], prefix: str, query: Dict[str, Any]) -> None:
             valid_keys = ['accountId', 'accountName', 'accountTags', 'ouId', 'ouIdWithPath', 'ouName', 'ouNameWithPath', 'ouTags']
             if not helper.is_valid_json_key_only(query, valid_keys):
@@ -64,7 +70,7 @@ class ValidateQuery:
         validation_results: List[str] = []
         if query == "*":
             return []
-         
+        
         if 'exclude' not in query:
             validation_results.append(
                 'A "policyScope.accountScope" section must contain an exclude-section.'

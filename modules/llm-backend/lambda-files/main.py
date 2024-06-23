@@ -60,6 +60,8 @@ def store_conversation_history(session_id: str, history: List[Dict[str, str]]) -
             batch.put_item(Item=item)
 
 def generate_prompt(chat_query: str, context: str, previous_query: Union[str, Dict[str, Any]], validation_results: List[str], history: List[Dict[str, str]]) -> str:
+    validation_messages = "\n".join(validation_results)
+
     conversation_history = "\n".join([f"Human: {entry['user']}\nAssistant: {entry['assistant']}" for entry in history])
     prompt_without_documentation = f"""Here are some documents for you to reference for your task in XML tag <documents>:
 <documents>{context}</documents>
@@ -74,7 +76,7 @@ Conversation history:
         prompt_without_documentation += f"""
 For this suggested query:
 <json>{previous_query}</json>
-the following validation results apply: {validation_results.get("validation_errors")}
+the following validation results apply: {validation_messages}
 """
     prompt_without_documentation += f"""
 Human: {chat_query}
@@ -117,9 +119,10 @@ def invoke_bedrock_model(chat_query: str, session_id: str) -> Tuple[str, Dict[st
         LOGGER.debug(f"code_blocks={code_blocks}")
         if code_blocks:
             query_json = json.loads(code_blocks[0])
-            validation_results = validator.validate_queries(query_json)
-            LOGGER.info(f"Validation results: {validation_results}")
-            if not validation_results:
+            validation_results  = validator.validate_query(query_json).get("validation_errors", [])
+            if validation_results:
+                LOGGER.info(f"Validation results: {validation_results}")
+            else:
                 break
             previous_query = query_json
 
