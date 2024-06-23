@@ -39,7 +39,7 @@ locals {
 # ¦ DYNAMODB TABLE
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_dynamodb_table" "conversation_history" {
-  name         = var.settings.chat_history_ddb_name
+  name = var.settings.chat_history_ddb_name
 
   hash_key     = "sessionID"
   range_key    = "timestamp"
@@ -49,7 +49,7 @@ resource "aws_dynamodb_table" "conversation_history" {
     attribute_name = "timeToExist"
     enabled        = true
   }
-  
+
   attribute {
     name = "sessionID"
     type = "S"
