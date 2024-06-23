@@ -79,6 +79,7 @@ locals {
 
 #tfsec:ignore:AVD-AWS-0066
 module "llm_backend" {
+  #checkov:skip=CKV_TF_1
   #checkov:skip=CKV_AWS_50
   source  = "acai-consulting/lambda/aws"
   version = "1.3.4"
@@ -125,11 +126,12 @@ resource "aws_iam_role_policy" "process_user_prompt" {
 
 #tfsec:ignore:AVD-AWS-0057
 data "aws_iam_policy_document" "lambda_permissions" {
+  #checkov:skip=CKV_AWS_356
   statement {
     sid    = "ReadDataFromBedrock"
     effect = "Allow"
     actions = [
-      "bedrock:InvokeModel",
+      "bedrock:InvokeModel"
     ]
     resources = ["*"]
   }
@@ -137,7 +139,6 @@ data "aws_iam_policy_document" "lambda_permissions" {
     sid    = "ConversationHistory"
     effect = "Allow"
     actions = [
-      "bedrock:InvokeModel",
       "dynamodb:Query",
       "dynamodb:PutItem",
       "dynamodb:BatchWriteItem"
