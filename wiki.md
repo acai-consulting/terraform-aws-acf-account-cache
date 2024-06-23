@@ -7,7 +7,7 @@
 <!-- SHIELDS -->
 [![Maintained by acai.gmbh][acai-shield]][acai-url] ![Copyright by acai.gmbh][acai-copyright-shield]
 
-This documentation focuses on the ACAI Cache Query, particularly the account cache query, and provides examples and guidelines for using Scope Pattern JSON to select specific AWS accounts based on defined criteria.
+This documentation focuses on how to query the ACAI ACF Account Cache, and provides guidelines and examples for specifying Query JSONs to select specific AWS accounts from the cache.
 
 # Content
 
@@ -29,24 +29,36 @@ In JSON (JavaScript Object Notation) format the
 
 ```python
 account_context = {
-  "accountId": "123456789012",
-  "accountName": "aws-core-semper",
-  "accountTags": {
-    "account_email": "accounts+aws-c1-semper@acai.gmbh",
-    "account_name": "aws-c1-semper",
-    "account_owner": "semper_rocks@acai.gmbh",
-    "environment": "nonprod",
-    "title": "ACAI SEMPER account - customer1 stage"
-  },
-  "ouId": "ou-1234-12345678",
-  "ouName": "Branding",
-  "ouNameWithPath": "Root/Branding",
-  "ouTags": {
-    "ou_owner": "Foundation Core",
-    "guardrail_package": "Guardrails High"
-  }
+    "accountId": "905418151472",
+    "accountName": "acai_aws-lab1_wl2",
+    "accountStatus": "ACTIVE",
+    "accountTags": {
+        "owner": "Finance",
+        "environment": "Non-Prod",
+        "application": "SAP",
+        "type": "Workload",
+        "confidentiality_level": "Restricted"
+    },
+    "ouId": "ou-er26-hsal28aq",
+    "ouIdWithPath": "o-3iuv4h36uk/r-er26/ou-er26-08tbwblz/ou-er26-sgxk358u/ou-er26-hsal28aq",
+    "ouName": "NonProd",
+    "ouNameWithPath": "Root/Lab_WorkloadAccounts/BusinessUnit_1/NonProd",
+    "ouTags": {
+        "module_provider": "ACAI GmbH",
+        "environment": "Production",
+        "module_source": "github.com/acai-consulting/terraform-aws-acf-org-ou-mgmt",
+        "application": "AWS MA Core",
+        "cicd_ado_organization": "acai-consulting",
+        "cicd_branch_name": "initial_version",
+        "cicd_pipeline_name": "Org-Mgmt",
+        "module_name": "terraform-aws-acf-org-ou-mgmt",
+        "module_version": "1.1.1",
+        "cicd_ado_project_name": "aws-lab-2024"
+    }
 }
 ```
+
+[Full Inventory of ACAI AWS Lab](https://github.com/acai-consulting/acai.public/blob/main/chat-bots/acf-context-query/full_account_cache.json)
 
 ## Query the Account Context Cache <a id="aws_account_context_query"></a> [🔝](#top)
 
@@ -54,27 +66,77 @@ In large AWS Orgnizations it is a typical use case to query groups of accounts t
 To query for a list of accounts the ACF Account Context Cache supports a JSON based query following the format:
 
 Syntax
-![JSON-Query-Image]
 
-```text
-For all accounts in the cache:
-query_json = "*" 
+```python
+from acai.cache.context_cache import ContextCache
+from acai.cache_query.context_cache_query import ContextCacheQuery
+# initialze LOGGER
 
-For selected accounts in the cache:
-query_json = {
-    "exclude": "*" | Pattern JSON-Object | [
-        Pattern JSON-Object
-    ],
-    "forceInclude": Pattern JSON-Object | [
-        Pattern JSON-Object
-    ]
-}
+def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    context_cache = ContextCache(
+        logger=LOGGER, 
+        org_reader_role_arn=ORG_READER_ROLE_ARN, 
+        context_cache_table_name=CONTEXT_CACHE_TABLE_NAME, 
+    ) 
+
+    # For all accounts in the cache:
+    context_cache_query = ContextCacheQuery(LOGGER, context_cache)
+    query_all = {
+        "query": "all"
+    }
+    result_all = context_cache_query.query_cache(query)
+    
+    # For selected accounts in the cache:
+    query_json = {
+        "exclude": "*" | Pattern JSON-Object | [
+            Pattern JSON-Object
+        ],
+        "forceInclude": Pattern JSON-Object | [
+            Pattern JSON-Object
+        ]
+    }
+    result_all = context_cache_query.query_cache(query)
+```
+
+
+
+Pattern JSON-Object = 
+
+
+### Query-Syntax
+
+```python
+    # For all accounts in the cache:
+    query_all = {
+        "query": "all"
+    }
+    
+    # For selected accounts in the cache:
+    query_json = {
+        "exclude": "*" | Pattern JSON-Object | [
+            Pattern JSON-Object
+        ],
+        "forceInclude": Pattern JSON-Object | [
+            Pattern JSON-Object
+        ]
+    }
 ```
 
 | Key           | Value-Type                                                 | Comment    |
 | :---          | :---                                                       | :---       |
 | .exclude      | "*" or Pattern JSON-Object or List of Pattern JSON-Objects | (optional) |
 | .forceInclude | Pattern JSON-Object or List of Pattern JSON-Objects        | (optional) |
+
+
+
+
+
+
+
+
+
+
+
 
 **Cache-Query Example #1**
 
@@ -201,12 +263,9 @@ Selects all AWS Accounts where "accountContext"."ouNameWithPath" contains "dept_
 A JSON-Object can be seen as a key-value store, able to describe complex models.
 The following diagram gives an overview of the most important JSON terms inspired by [www.json.org](https://www.json.org/json-en.html).
 
-![JSON-Basics-Image]
-
 # ACAI JSON-Engine <a id="acai_json_engine"></a> [🔝](#top)
 
 The principle of the ACAI JSON-Engine is based on the comparison of a **Pattern JSON** with a **Source JSON**.
-![JSON-Engine-Image]
 
 The syntax of the **Pattern JSON** is in alignment with [Amazon EventBridge > Create event patterns](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html#eb-create-pattern):
 
