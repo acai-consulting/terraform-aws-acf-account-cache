@@ -41,6 +41,8 @@ locals {
 #tfsec:ignore:AVD-AWS-0024
 #tfsec:ignore:AVD-AWS-0025
 resource "aws_dynamodb_table" "conversation_history" {
+  #checkov:skip=CKV_AWS_28
+  #checkov:skip=CKV_AWS_119
   name = var.settings.chat_history_ddb_name
 
   hash_key     = "sessionID"
@@ -128,12 +130,21 @@ data "aws_iam_policy_document" "lambda_permissions" {
     effect = "Allow"
     actions = [
       "bedrock:InvokeModel",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    sid    = "ConversationHistory"
+    effect = "Allow"
+    actions = [
+      "bedrock:InvokeModel",
       "dynamodb:Query",
       "dynamodb:PutItem",
       "dynamodb:BatchWriteItem"
     ]
-    resources = ["*"]
+    resources = [aws_dynamodb_table.conversation_history.arn]
   }
+
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

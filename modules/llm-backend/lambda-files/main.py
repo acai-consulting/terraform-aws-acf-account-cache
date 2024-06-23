@@ -67,7 +67,7 @@ def generate_prompt(chat_query: str, context: str, previous_query: Union[str, Di
 <documents>{context}</documents>
 Your task is creating a JSON query-policy for the ACAI account-context cache embedded in a ```json ..``` block.
 Respond with a rich answer containing the JSON configuration policy in code format.
-The human specified values should be exactly preserved including case sensitivity.
+The human specified values should be exactly preserved including case sensitivity. Statements in quotes must exactly be preserved.
 
 Conversation history:
 {conversation_history}
