@@ -65,7 +65,7 @@ def generate_prompt(chat_query: str, context: str, previous_query: Union[str, Di
     conversation_history = "\n".join([f"Human: {entry['user']}\nAssistant: {entry['assistant']}" for entry in history])
     prompt_without_documentation = f"""Here are some documents for you to reference for your task in XML tag <documents>:
 <documents>{context}</documents>
-Your task is creating a JSON query-policy for the ACAI account-context cache.
+Your task is creating a JSON query-policy for the ACAI account-context cache embedded in a ```json ..``` block.
 Respond with a rich answer containing the JSON configuration policy in code format.
 The human specified values should be exactly preserved including case sensitivity.
 
@@ -116,15 +116,19 @@ def invoke_bedrock_model(chat_query: str, session_id: str) -> Tuple[str, Dict[st
         LOGGER.debug(f"response_content={response_content}")
 
         code_blocks = re.findall(r'```json\n([\s\S]*?)```', response_content.get('content', [{}])[0].get('text', ''))
-        LOGGER.debug(f"code_blocks={code_blocks}")
-        if code_blocks:
-            query_json = json.loads(code_blocks[0])
-            validation_results  = validator.validate_query(query_json).get("validation_errors", [])
-            if validation_results:
-                LOGGER.info(f"Validation results: {validation_results}")
-            else:
-                break
-            previous_query = query_json
+        try:
+            LOGGER.debug(f"code_blocks={code_blocks}")
+            if code_blocks:
+                query_json = json.loads(code_blocks[0])
+                validate_queries = validator.validate_queries(query_json)
+                if validation_results:
+                    validation_results = validate_queries[0].get("validation_errors", [])
+                    LOGGER.info(f"Validation results: {validation_results}")
+                else:
+                    break
+                previous_query = query_json
+        except Exception as e:
+            LOGGER.error(f"Unhandled exception: {e}", exc_info=True)
 
     conversation_history.append({
         'timestamp': int(time.time()),
@@ -160,7 +164,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         return handle_chat_query(event)
     except Exception as e:
-        LOGGER.error(f"Unhandled exception: {e}")
+        LOGGER.error(f"Unhandled exception: {e}", exc_info=True)
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Internal server error'})

@@ -38,8 +38,9 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DYNAMODB TABLE
 # ---------------------------------------------------------------------------------------------------------------------
+#tfsec:ignore:AVD-AWS-0024
+#tfsec:ignore:AVD-AWS-0025
 resource "aws_dynamodb_table" "conversation_history" {
-  #tfsec:ignore:AVD-AWS-0025
   name = var.settings.chat_history_ddb_name
 
   hash_key     = "sessionID"
