@@ -73,6 +73,14 @@ class JsonPatternEngine:
                     self.logger.debug(f"_check_pattern_to_source_match> source_value is not a string, returning False")
                     return False
             else:
+                if isinstance(pattern_value, list):
+                    for pattern_item in pattern_value:
+                        if isinstance(pattern_item, dict):
+                            for logic_key, logic_value in pattern_item.items():
+                                if logic_key == "exists":
+                                    if logic_value == False:
+                                        return True
+
                 self.logger.debug(f"_check_pattern_to_source_match> pattern_key {pattern_key_lowered} not found in source")
                 return False
 

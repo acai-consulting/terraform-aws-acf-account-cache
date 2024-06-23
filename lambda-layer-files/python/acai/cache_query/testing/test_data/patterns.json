@@ -65,5 +65,23 @@
         "accountTags": {
             "environment": "Production"
         }
+    },
+    "pattern_json_8": {
+        "accountTags": {
+            "environment": [
+                {
+                    "exists": true
+                }
+            ]
+        }
+    },
+    "pattern_json_9": {
+        "accountTags": {
+            "environment": [
+                {
+                    "exists": false
+                }
+            ]
+        }
     }
 }
