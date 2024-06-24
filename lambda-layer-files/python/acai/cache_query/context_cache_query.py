@@ -31,7 +31,8 @@ class ContextCacheQuery:
         validation = self.validation.validate_query(query)
         validation_errors = validation.get("validation_errors", [])
 
-        if len(validation_errors) > 0:
+        if validation_errors:
+            self.logger.error(f"Validation Error: {validation}")
             raise ValueError(validation)
 
         result = {
