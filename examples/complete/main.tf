@@ -81,7 +81,7 @@ data "aws_lambda_invocation" "invoke_cache_consumer_1" {
 }
 JSON
   provider = aws.core_security
-  depends_on = [ 
+  depends_on = [
     module.cache_consumer
   ]
 }
@@ -105,7 +105,7 @@ data "aws_lambda_invocation" "invoke_cache_consumer_2" {
 }
 JSON
   provider = aws.core_security
-  depends_on = [ 
+  depends_on = [
     module.cache_consumer
   ]
 }
