@@ -121,9 +121,10 @@ def invoke_bedrock_model(chat_query: str, session_id: str) -> Tuple[str, Dict[st
             LOGGER.debug(f"code_blocks={code_blocks}")
             if code_blocks:
                 query_json = json.loads(code_blocks[0])
-                validate_queries = validator.validate_queries(query_json)
-                if validation_results:
-                    validation_results = validate_queries[0].get("validation_errors", [])
+                validation = validator.validate_query(query_json)
+                validation_results = validation.get("validation_errors", [])
+
+                if len(validation_results) > 0:
                     LOGGER.info(f"Validation results: {validation_results}")
                 else:
                     break

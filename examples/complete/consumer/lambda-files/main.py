@@ -28,5 +28,5 @@ def lambda_handler(event, context):
             return context_cache.get_all_account_contexts()
         
     except Exception as e:
-        LOGGER.exception(f'Unexpected error: {e}')
+        LOGGER.exception(f'Unexpected error: {e}', exc_info=True)
         raise e
