@@ -46,7 +46,7 @@ class ValidateQuery:
                     'or a list of account-contexts that will be evaluated with a logical OR.'
                 )
 
-        def evaluate_force_include(validation_errors: List[str], force_include_json: Any) -> None:
+        def evaluate_force_include(validation_errors: List[str], validation_hints: List[str], force_include_json: Any) -> None:
             if isinstance(force_include_json, list):
                 for account_scope_element in force_include_json:
                     if isinstance(account_scope_element, dict):
