@@ -1,8 +1,11 @@
 # ACAI Account-Cache-Query Documentation <a id="top">
 <!-- LOGO -->
+<!-- LOGO -->
+<div style="text-align: right; margin-top: -60px;">
 <a href="https://acai.gmbh">
-    <img src="https://acai.gmbh/images/logo/logo-acai-badge.png" alt="acai logo" title="acai" align="right" width="100" />
-</a>
+  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI"  width="250" /></a>
+</div>
+</br>
 
 <!-- SHIELDS -->
 [![Maintained by acai.gmbh][acai-shield]][acai-url] ![Copyright by acai.gmbh][acai-copyright-shield]
@@ -18,7 +21,7 @@ This documentation focuses on how to query the ACAI ACF Account Cache, and provi
   - [Basic Expressions](#basic_expressions)
   - [Logical Expressions](#logical_expressions)
   - [Pattern JSON Examples](#acai_json_engine_examples)
-- [Cache-Query Examples](#cache_query_examples4)
+- [Cache-Query Examples](#cache_query_examples)
 
 
 
