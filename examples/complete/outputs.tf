@@ -1,6 +1,6 @@
 output "example_passed" {
   description = "example_passed"
-  value       = contains(keys(jsondecode(aws_lambda_invocation.invoke_cache_consumer_1.result)), "accountId")
+  value       = contains(keys(jsondecode(data.aws_lambda_invocation.invoke_cache_consumer_1.result)), "accountId")
 }
 
 output "aws_lambda_invocation_1" {

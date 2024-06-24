@@ -1,5 +1,6 @@
 import os
 import logging
+import uuid
 import json
 import re
 import boto3
@@ -142,7 +143,7 @@ def invoke_bedrock_model(chat_query: str, session_id: str) -> Tuple[str, Dict[st
     return response_content['content'][0]['text'], query_json
 
 def handle_chat_query(event: Dict[str, Any]) -> Dict[str, Any]:
-    session_id = event.get('session_id')
+    session_id = event.get('session_id', str(uuid.uuid4()))
     chat_query = event.get('chat_query')
     if not chat_query or not session_id:
         return {
