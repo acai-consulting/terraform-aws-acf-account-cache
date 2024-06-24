@@ -35,7 +35,9 @@ $${resource_tags_block}
               - Effect: Allow
                 Action:
                   - events:*
-                Resource: !Sub "arn:aws:events:*:$$$${AWS::AccountId}:rule/${lambda_name}-schedule"
+                Resource: 
+                  - !Sub "arn:aws:events:*:$$$${AWS::AccountId}:rule/${lambda_name}-schedule"
+                  - !Sub "arn:aws:events:*:$$$${AWS::AccountId}:rule/${lambda_name}-trigger"
               - Effect: Allow
                 Action:
                   - logs:Describe*

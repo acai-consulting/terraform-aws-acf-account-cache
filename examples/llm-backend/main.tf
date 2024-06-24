@@ -41,4 +41,7 @@ data "aws_lambda_invocation" "llm_backend" {
 }
 JSON
   provider = aws.core_security
+  depends_on = [
+    module.llm_backend
+  ]
 }

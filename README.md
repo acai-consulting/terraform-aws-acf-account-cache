@@ -55,7 +55,7 @@ The module retrieves and caches the following account-context data:
 <!-- USAGE -->
 ## Usage
 
-### terraform-aws-acf-account-cache
+### Terraform resources
 
 ```hcl
 module "org_info_reader" {
@@ -69,6 +69,7 @@ module "org_info_reader" {
   }
 }
 
+### terraform-aws-acf-account-cache
 module "account_cache" {
   source = "git::https://github.com/acai-consulting/terraform-aws-acf-account-cache.git"
 
@@ -80,36 +81,60 @@ module "account_cache" {
   }
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ YOUR LAMBDA AS CACHE CONSUMER
-# ---------------------------------------------------------------------------------------------------------------------
-module "lambda_account_cache_consumer" {
-  #checkov:skip=CKV_TF_1: Currently version-tags are used
-  source  = "acai-consulting/lambda/aws"
-  version = "~> 1.3.2"
+### optional query generator
+module "account_cache" {
+  source = "git::https://github.com/acai-consulting/terraform-aws-acf-account-cache.git//modules/llm-backend"
 
-  lambda_settings = {
-    function_name = "account-cache-consumer"
-    description   = "Query the account-cache."
-    layer_arn_list = [
-      module.account_cache.cache_lambda_layer_arn
-    ]
-    handler = "main.lambda_handler"
-    package = {
-      source_path = "${path.module}/lambda-files"
-    }
-    environment_variables = {
-      ORG_READER_ROLE_ARN      = module.org_info_reader.iam_role_arn
-      CONTEXT_CACHE_TABLE_NAME = module.account_cache.ddb_name
-    }
+  settings = {
+    org_reader_role_arn = module.org_info_reader.iam_role_arn
   }
-  resource_tags = local.resource_tags
+  providers = {
+    aws = aws.core_security
+  }
 }
+```
 
-resource "aws_iam_role_policy_attachment" "lambda_account_cache_policy_attachment" {
-  role       = module.lambda_account_cache_consumer.execution_iam_role.name
-  policy_arn = module.account_cache.cache_lambda_permission_policy_arn
-}
+### Cache Consumer
+
+Add the provisioned Lambda Layer to your Python Lambdas.
+
+```hcl
+import os
+from acai.cache.context_cache import ContextCache
+from acai.cache_query.context_cache_query import ContextCacheQuery
+import logging
+
+LOGLEVEL = os.environ.get('LOG_LEVEL', 'DEBUG').upper()
+logging.getLogger().setLevel(LOGLEVEL)
+for noisy_log_source in ["boto3", "botocore", "nose", "s3transfer", "urllib3"]:
+    logging.getLogger(noisy_log_source).setLevel(logging.WARN)
+LOGGER = logging.getLogger()
+
+ORG_READER_ROLE_ARN = os.environ['ORG_READER_ROLE_ARN']
+CONTEXT_CACHE_TABLE_NAME = os.environ['CONTEXT_CACHE_TABLE_NAME']
+
+def lambda_handler(event, context):
+    try:
+        context_cache = ContextCache(LOGGER, ORG_READER_ROLE_ARN, CONTEXT_CACHE_TABLE_NAME)
+        context_cache_query = ContextCacheQuery(LOGGER, context_cache)
+        
+        accounts = context_cache_query.query_cache({
+            "exclude": "*",
+            "forceInclude": [
+                {
+                    "accountTags": {
+                        "environment": "Prod"
+                    },
+                    "ouNameWithPath": [
+                        {
+                            "contains": "/BusinessUnit_1/"
+                        }
+                    ]
+                }
+            ]
+        })        
+
+        context_cache.get_member_account_context(accounts[0])
 ```
 
 <!-- BEGIN_TF_DOCS -->

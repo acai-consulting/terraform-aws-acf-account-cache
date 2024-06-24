@@ -1,8 +1,11 @@
-/*output "example_passed" {
+output "example_passed" {
   description = "example_passed"
-  value       = contains(keys(local.lambda_result), "accountId")
+  value = contains(
+    keys(jsondecode(jsondecode(data.aws_lambda_invocation.llm_backend.result)["body"])),
+    "query"
+  )
 }
-*/
+
 output "llm_backend" {
   description = "llm_backend"
   value       = module.llm_backend

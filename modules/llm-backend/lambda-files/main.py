@@ -1,5 +1,6 @@
 import os
 import logging
+import uuid
 import json
 import re
 import boto3
@@ -63,21 +64,27 @@ def generate_prompt(chat_query: str, context: str, previous_query: Union[str, Di
     validation_messages = "\n".join(validation_results)
 
     conversation_history = "\n".join([f"Human: {entry['user']}\nAssistant: {entry['assistant']}" for entry in history])
-    prompt_without_documentation = f"""Here are some documents for you to reference for your task in XML tag <documents>:
-<documents>{context}</documents>
-Your task is creating a JSON query-policy for the ACAI account-context cache embedded in a ```json ..``` block.
+    prompt_without_documentation = f"""Your task is creating a JSON query-policy for the ACAI account-context cache embedded in a ```json ..``` block.
 Respond with a rich answer containing the JSON configuration policy in code format.
 The human specified values should be exactly preserved including case sensitivity. Statements in quotes must exactly be preserved.
 
+"""
+
+    if conversation_history:
+        prompt_without_documentation += f"""
 Conversation history:
 {conversation_history}
+
 """
-    if previous_query:
+
+    if validation_messages:
         prompt_without_documentation += f"""
 For this suggested query:
 <json>{previous_query}</json>
 the following validation results apply: {validation_messages}
+
 """
+
     prompt_without_documentation += f"""
 Human: {chat_query}
 Assistant: """
@@ -120,14 +127,16 @@ def invoke_bedrock_model(chat_query: str, session_id: str) -> Tuple[str, Dict[st
             LOGGER.debug(f"code_blocks={code_blocks}")
             if code_blocks:
                 query_json = json.loads(code_blocks[0])
-                validate_queries = validator.validate_queries(query_json)
-                if validation_results:
-                    validation_results = validate_queries[0].get("validation_errors", [])
+                validation = validator.validate_query(query_json)
+                validation_results = validation.get("validation_errors", [])
+
+                if len(validation_results) > 0:
                     LOGGER.info(f"Validation results: {validation_results}")
                 else:
                     break
                 previous_query = query_json
         except Exception as e:
+            LOGGER.info(response_content.get('content', [{}])[0].get('text', ''))
             LOGGER.error(f"Unhandled exception: {e}", exc_info=True)
 
     conversation_history.append({
@@ -141,7 +150,7 @@ def invoke_bedrock_model(chat_query: str, session_id: str) -> Tuple[str, Dict[st
     return response_content['content'][0]['text'], query_json
 
 def handle_chat_query(event: Dict[str, Any]) -> Dict[str, Any]:
-    session_id = event.get('session_id')
+    session_id = event.get('session_id', str(uuid.uuid4()))
     chat_query = event.get('chat_query')
     if not chat_query or not session_id:
         return {

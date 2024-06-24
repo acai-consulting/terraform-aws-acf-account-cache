@@ -86,5 +86,5 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return handle_action_event(event, context_cache)
 
     except Exception as e:
-        LOGGER.exception(f'Unexpected error: {e}')
+        LOGGER.exception(f'Unexpected error: {e}', exc_info=True)
         raise e
