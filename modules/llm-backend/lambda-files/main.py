@@ -64,21 +64,27 @@ def generate_prompt(chat_query: str, context: str, previous_query: Union[str, Di
     validation_messages = "\n".join(validation_results)
 
     conversation_history = "\n".join([f"Human: {entry['user']}\nAssistant: {entry['assistant']}" for entry in history])
-    prompt_without_documentation = f"""Here are some documents for you to reference for your task in XML tag <documents>:
-<documents>{context}</documents>
-Your task is creating a JSON query-policy for the ACAI account-context cache embedded in a ```json ..``` block.
+    prompt_without_documentation = f"""Your task is creating a JSON query-policy for the ACAI account-context cache embedded in a ```json ..``` block.
 Respond with a rich answer containing the JSON configuration policy in code format.
 The human specified values should be exactly preserved including case sensitivity. Statements in quotes must exactly be preserved.
 
+"""
+
+    if conversation_history:
+        prompt_without_documentation += f"""
 Conversation history:
 {conversation_history}
+
 """
-    if previous_query:
+
+    if validation_messages:
         prompt_without_documentation += f"""
 For this suggested query:
 <json>{previous_query}</json>
 the following validation results apply: {validation_messages}
+
 """
+
     prompt_without_documentation += f"""
 Human: {chat_query}
 Assistant: """

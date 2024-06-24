@@ -41,7 +41,7 @@ class ValidateQuery:
         def evaluate_exclude(validation_results: List[str], exclude_json: Any) -> None:
             if exclude_json == ['*']:
                 self.response_hints.append(
-                    'In a "policyScope"-section {"exclude": ["*"]} can be written as {"exclude": "*"}.'
+                    '{"exclude": ["*"]} can be written as {"exclude": "*"}.'
                 )
             elif isinstance(exclude_json, list):
                 for account_scope_element in exclude_json:
@@ -51,7 +51,7 @@ class ValidateQuery:
                 evaluate_query(validation_results, "exclude", exclude_json)
             elif exclude_json != '*':
                 validation_results.append(
-                    'A "accountScope.exclude" section may only be "*" for excluding all accounts, a single account-context '
+                    'The "exclude"-value may only be "*" for excluding all accounts, a single account-context '
                     'or a list of account-contexts that will be evaluated with a logical OR.'
                 )
 
@@ -64,7 +64,7 @@ class ValidateQuery:
                 evaluate_query(validation_results, "forceInclude", force_include_json)
             else:
                 validation_results.append(
-                    'A "accountScope.forceInclude" may only be a single account-context or a list of account-context that will be evaluated with a logical OR.'
+                    'The "forceInclude"-value may only be a single account-context or a list of account-context that will be evaluated with a logical OR.'
                 )
 
         validation_results: List[str] = []
@@ -73,17 +73,17 @@ class ValidateQuery:
         
         if 'exclude' not in query:
             validation_results.append(
-                'A "policyScope.accountScope" section must contain an exclude-section.'
+                'The cache query section must contain an "exclude"-section.'
             )
 
         if helper.get_value(query, 'forceInclude') in ['*', ['*']]:
             self.response_hints.append(
-                'In a "policyScope"-section "forceInclude": "*" or "forceInclude": ["*"] is not required, as by default all entities are in scope.'
+                '"forceInclude": "*" or "forceInclude": ["*"] is not required, as by default all entities are in scope.'
             )
 
         if helper.contains_key(query, 'forceInclude') and not helper.contains_key(query, 'exclude'):
             validation_results.append(
-                'By default all AWS accounts are in scope. A "policyScope"-section that wants to forceInclude AWS accounts first must exclude AWS accounts.'
+                'By default all AWS accounts are in scope. A Cache-Query the wants to forceInclude AWS accounts, first must exclude AWS accounts.'
             )
 
         if helper.contains_key(query, 'exclude'):
