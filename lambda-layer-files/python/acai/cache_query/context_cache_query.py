@@ -29,10 +29,10 @@ class ContextCacheQuery:
         self.logger.debug(f'type(query): {type(query)}')
 
         validation = self.validation.validate_query(query)
-        validation_results = validation.get("validation_errors", [])
+        validation_errors = validation.get("validation_errors", [])
 
-        if len(validation_results) > 0:
-            raise ValueError(validation_results)
+        if len(validation_errors) > 0:
+            raise ValueError(validation)
 
         result = {
             'account_context_list': [],

@@ -20,7 +20,7 @@ class ValidateQuery:
         return validation_results
 
     # ¦ validate_query
-    def validate_query(self, query: Dict[str, Any]) -> List[str]:
+    def validate_query(self, query: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "query": query,
             "validation_errors": self._validate(query)
