@@ -3,6 +3,7 @@ variable "settings" {
     lambda_name       = optional(string, "acai-account-cache")
     lambda_schedule   = optional(string, "rate(30 minutes)")
     lambda_layer_name = optional(string, "acai-account-cache-layer")
+    lambda_invocation = optional(bool, false)
     lambda_iam_role = optional(object({
       name                     = optional(string, "acai-account-cache-lambda-role")
       path                     = optional(string, "/")

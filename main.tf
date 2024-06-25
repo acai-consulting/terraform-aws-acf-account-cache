@@ -363,6 +363,7 @@ module "lambda_account_cache" {
 # ¦ INVOKE LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_lambda_invocation" "invoke" {
+  count         = var.settings.invoke_lambda ? 1 : 0
   function_name = module.lambda_account_cache.lambda.name
 
   input = <<JSON

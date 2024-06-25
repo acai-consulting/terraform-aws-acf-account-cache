@@ -22,3 +22,19 @@ output "api_endpoint" {
   description = "api_endpoint"
   value       = var.settings.api_settings != null ? module.api_endpoint : null
 }
+
+output "core_configuration_to_write" {
+  description = "Will be stored to the Account Cache node of the Core Configuration"
+  value = {
+    provisoned_caches = {
+      "${data.aws_caller_identity.current.account_id}" = {
+        "${data.aws_region.current.name}" = {
+          lambda_arn               = module.lambda_account_cache.lambda.arn
+          lambda_layer_arn         = aws_lambda_layer_version.lambda_layer.arn
+          context_cache_table_name = aws_dynamodb_table.context_cache.name
+          api_endpoint             = var.settings.api_settings != null ? module.api_endpoint : null
+        }
+      }
+    }
+  }
+}
