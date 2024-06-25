@@ -26,12 +26,13 @@ class ContextCacheQuery:
 
     # ¦ query_cache
     def query_cache(self, query: Union[Dict[str, Any], List[Dict[str, Any]]]) -> Dict[str, List[Dict[str, Any]]]:
-        validation = self.validation.validate_query(query)
-        validation_errors = validation.get("validation_errors", [])
-        self.logger.info(f"Validation: {validation}")
+        if query != "*":
+            validation = self.validation.validate_query(query)
+            validation_errors = validation.get("validation_errors", [])
+            self.logger.info(f"Validation: {validation}")
 
-        if validation_errors:
-            raise ValueError(validation)
+            if validation_errors:
+                raise ValueError(validation)
 
         result = {
             'account_context_list': [],

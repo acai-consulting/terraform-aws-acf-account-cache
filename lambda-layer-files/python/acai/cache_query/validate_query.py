@@ -60,28 +60,26 @@ class ValidateQuery:
 
         validation_errors = []
         validation_hints = []
-        if query == "*":
-            return []
-        
-        if 'exclude' not in query:
-            validation_errors.append(
-                'The cache query section must contain an "exclude"-section.'
-            )
+        if query != "*":
+            if 'exclude' not in query:
+                validation_errors.append(
+                    'The cache query section must contain an "exclude"-section.'
+                )
 
-        if helper.get_value(query, 'forceInclude') in ['*', ['*']]:
-            validation_hints.append(
-                '"forceInclude": "*" or "forceInclude": ["*"] is not required, as by default all entities are in scope.'
-            )
+            if helper.get_value(query, 'forceInclude') in ['*', ['*']]:
+                validation_hints.append(
+                    '"forceInclude": "*" or "forceInclude": ["*"] is not required, as by default all entities are in scope.'
+                )
 
-        if helper.contains_key(query, 'forceInclude') and not helper.contains_key(query, 'exclude'):
-            validation_errors.append(
-                'By default all AWS accounts are in scope. A Cache-Query the wants to forceInclude AWS accounts, first must exclude AWS accounts.'
-            )
+            if helper.contains_key(query, 'forceInclude') and not helper.contains_key(query, 'exclude'):
+                validation_errors.append(
+                    'By default all AWS accounts are in scope. A Cache-Query the wants to forceInclude AWS accounts, first must exclude AWS accounts.'
+                )
 
-        if helper.contains_key(query, 'exclude'):
-            evaluate_exclude(validation_errors, validation_hints, helper.get_value(query, 'exclude'))
+            if helper.contains_key(query, 'exclude'):
+                evaluate_exclude(validation_errors, validation_hints, helper.get_value(query, 'exclude'))
 
-        if helper.contains_key(query, 'forceInclude'):
-            evaluate_force_include(validation_errors, validation_hints, helper.get_value(query, 'forceInclude'))
+            if helper.contains_key(query, 'forceInclude'):
+                evaluate_force_include(validation_errors, validation_hints, helper.get_value(query, 'forceInclude'))
 
         return validation_errors, validation_hints
