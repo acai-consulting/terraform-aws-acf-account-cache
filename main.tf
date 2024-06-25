@@ -305,7 +305,7 @@ resource "aws_dynamodb_table" "context_cache" {
 data "archive_file" "lambda_layer_package" {
   type        = "zip"
   source_dir  = "${path.module}/lambda-layer-files"
-  output_path = "${path.module}/lambda-layer-files/zipped_package.zip"
+  output_path = "${path.module}/zipped_package.zip"
 }
 
 resource "aws_lambda_layer_version" "lambda_layer" {
@@ -313,8 +313,12 @@ resource "aws_lambda_layer_version" "lambda_layer" {
   filename                 = data.archive_file.lambda_layer_package.output_path
   compatible_runtimes      = [var.lambda_settings.runtime]
   compatible_architectures = [var.lambda_settings.architecture]
-  source_code_hash         = data.archive_file.lambda_layer_package.output_sha256
+  source_code_hash         = data.archive_file.lambda_layer_package.output_base64sha256
+  lifecycle {
+    ignore_changes = [filename]
+  }
 }
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA
