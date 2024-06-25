@@ -32,7 +32,7 @@ output "core_configuration_to_write" {
           lambda_arn               = module.lambda_account_cache.lambda.arn
           lambda_layer_arn         = aws_lambda_layer_version.lambda_layer.arn
           context_cache_table_name = aws_dynamodb_table.context_cache.name
-          api_endpoint             = var.settings.api_settings != null ? module.api_endpoint : null
+          api_endpoint             = var.settings.api_settings != null ? module.api_endpoint.api_endpoint : "n/a"
         }
       }
     }
