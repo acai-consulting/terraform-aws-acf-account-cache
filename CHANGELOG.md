@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.2...1.2.3) (2024-06-25)
+
+
+### Bug Fixes
+
+* add layer lifecycle ([#8](https://github.com/acai-consulting/terraform-aws-acf-account-cache/issues/8)) ([40dc15f](https://github.com/acai-consulting/terraform-aws-acf-account-cache/commit/40dc15fab7584009e1b0ef106782d7333cd9a12a))
+
 ## [1.2.2](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.1...1.2.2) (2024-06-25)
 
 
