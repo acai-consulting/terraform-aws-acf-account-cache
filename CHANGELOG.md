@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.5](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.4...1.2.5) (2024-07-05)
+
+
+### Bug Fixes
+
+* bump to Lambda 1.3.6 ([#10](https://github.com/acai-consulting/terraform-aws-acf-account-cache/issues/10)) ([15ca63b](https://github.com/acai-consulting/terraform-aws-acf-account-cache/commit/15ca63bafd744b988a91f024c4403d95a0901caf))
+
 ## [1.2.4](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.3...1.2.4) (2024-06-25)
 
 
