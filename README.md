@@ -157,7 +157,7 @@ def lambda_handler(event, context):
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_api_endpoint"></a> [api\_endpoint](#module\_api\_endpoint) | ./modules/api-endpoint | n/a |
-| <a name="module_lambda_account_cache"></a> [lambda\_account\_cache](#module\_lambda\_account\_cache) | acai-consulting/lambda/aws | 1.3.4 |
+| <a name="module_lambda_account_cache"></a> [lambda\_account\_cache](#module\_lambda\_account\_cache) | acai-consulting/lambda/aws | 1.3.6 |
 
 ## Resources
 
