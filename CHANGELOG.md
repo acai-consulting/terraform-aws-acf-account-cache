@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.7](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.6...1.2.7) (2024-07-15)
+
+
+### Bug Fixes
+
+* add cache_access_policy_arn as output ([#12](https://github.com/acai-consulting/terraform-aws-acf-account-cache/issues/12)) ([4fe843c](https://github.com/acai-consulting/terraform-aws-acf-account-cache/commit/4fe843c8ebadaefca516e91c5003200bcf19c97b))
+
 ## [1.2.6](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.5...1.2.6) (2024-07-15)
 
 
