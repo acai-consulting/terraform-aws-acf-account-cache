@@ -29,11 +29,12 @@ output "core_configuration_to_write" {
     provisoned_caches = {
       "${data.aws_caller_identity.current.account_id}" = {
         "${data.aws_region.current.name}" = {
-          org_reader_role_arn = var.settings.org_reader_role_arn
-          lambda_arn          = module.lambda_account_cache.lambda.arn
-          lambda_layer_arn    = aws_lambda_layer_version.lambda_layer.arn
-          ddb_table_name      = aws_dynamodb_table.context_cache.name
-          api_endpoint        = var.settings.api_settings != null ? module.api_endpoint[0].api_endpoint : "n/a"
+          org_reader_role_arn     = var.settings.org_reader_role_arn
+          lambda_arn              = module.lambda_account_cache.lambda.arn
+          lambda_layer_arn        = aws_lambda_layer_version.lambda_layer.arn
+          ddb_table_name          = aws_dynamodb_table.context_cache.name
+          cache_access_policy_arn = aws_iam_policy.lambda_account_cache_permissions.arn
+          api_endpoint            = var.settings.api_settings != null ? module.api_endpoint[0].api_endpoint : "n/a"
         }
       }
     }

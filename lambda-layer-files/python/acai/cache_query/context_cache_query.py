@@ -10,6 +10,9 @@ class ContextCacheQuery:
         self.json_engine = JsonPatternEngine(logger)
         self.validation = ValidateQuery(logger)
 
+    def get_context_cache(self):
+        return self.context_cache
+    
     """
     query can be a query-dict or a list of query-dict 
 
@@ -22,8 +25,7 @@ class ContextCacheQuery:
         "exclude": [{account_context_query} and {account_context_query}],
         "forceInclude": [{account_context_query}]
     }
-    """
-
+    """    
     # ¦ query_cache
     def query_cache(self, query: Union[Dict[str, Any], List[Dict[str, Any]]]) -> Dict[str, List[Dict[str, Any]]]:
         if query != "*":
@@ -59,7 +61,6 @@ class ContextCacheQuery:
 
         result['info'] = f"Selected {counter} of {len(cache_items)} cache-items."
         return result
-
 
     # ¦ _account_in_scope
     def _account_in_scope(self, account: Dict[str, Any], query: Union[Dict[str, Any], List[Dict[str, Any]]]) -> bool:
