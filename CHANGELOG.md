@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.7...1.3.0) (2024-08-12)
+
+
+### Features
+
+* better isolation of Lambda Layer ([#13](https://github.com/acai-consulting/terraform-aws-acf-account-cache/issues/13)) ([807e756](https://github.com/acai-consulting/terraform-aws-acf-account-cache/commit/807e756f0518b199f2afcda8a75031ddc5f70891))
+
 ## [1.2.7](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.6...1.2.7) (2024-07-15)
 
 
