@@ -302,20 +302,12 @@ resource "aws_dynamodb_table" "context_cache" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA LAYER
 # ---------------------------------------------------------------------------------------------------------------------
-data "archive_file" "lambda_layer_package" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda-layer-files"
-  output_path = "${path.module}/zipped_package.zip"
-}
-
-resource "aws_lambda_layer_version" "lambda_layer" {
-  layer_name               = var.settings.lambda_layer_name
-  filename                 = data.archive_file.lambda_layer_package.output_path
-  compatible_runtimes      = [var.lambda_settings.runtime]
-  compatible_architectures = [var.lambda_settings.architecture]
-  source_code_hash         = data.archive_file.lambda_layer_package.output_base64sha256
-  lifecycle {
-    ignore_changes = [filename]
+module "lambda_layer" {
+  source = "./lambda-layer/python"
+  settings = {
+    lambda_layer_name = var.settings.lambda_layer_name
+    architectures     = [var.lambda_settings.architecture]
+    runtimes          = [var.lambda_settings.runtime]
   }
 }
 
@@ -333,7 +325,7 @@ module "lambda_account_cache" {
     description   = "Maintain and query the account-cache."
     layer_arn_list = [
       replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name),
-      aws_lambda_layer_version.lambda_layer.arn
+      module.lambda_layer.arn
     ]
     handler = "main.lambda_handler"
     config  = var.lambda_settings

@@ -10,7 +10,7 @@ output "ddb_ttl_tag_name" {
 
 output "cache_lambda_layer_arn" {
   description = "cache_lambda_layer_arn"
-  value       = aws_lambda_layer_version.lambda_layer.arn
+  value       = module.lambda_layer.arn
 }
 
 output "cache_lambda_permission_policy_arn" {
@@ -31,7 +31,7 @@ output "core_configuration_to_write" {
         "${data.aws_region.current.name}" = {
           org_reader_role_arn     = var.settings.org_reader_role_arn
           lambda_arn              = module.lambda_account_cache.lambda.arn
-          lambda_layer_arn        = aws_lambda_layer_version.lambda_layer.arn
+          lambda_layer_arn        = module.lambda_layer.arn
           ddb_table_name          = aws_dynamodb_table.context_cache.name
           cache_access_policy_arn = aws_iam_policy.lambda_account_cache_permissions.arn
           api_endpoint            = var.settings.api_settings != null ? module.api_endpoint[0].api_endpoint : "n/a"
