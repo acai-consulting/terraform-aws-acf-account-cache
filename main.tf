@@ -33,7 +33,6 @@ locals {
     }
   )
   kms_cmk_provided = var.settings.kms_cmk != null
-  ddb_ttl_tag_name = "cache_ttl_in_minutes"
 }
 
 
@@ -293,7 +292,7 @@ resource "aws_dynamodb_table" "context_cache" {
   tags = merge(
     local.resource_tags,
     {
-      "${local.ddb_ttl_tag_name}" = var.settings.cache_ttl_in_minutes
+      "cache_ttl_in_minutes" = var.settings.cache_ttl_in_minutes
     }
   )
 }
@@ -340,7 +339,6 @@ module "lambda_account_cache" {
       LOG_LEVEL                = var.lambda_settings.log_level
       ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
       CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
-      DDB_TTL_TAG_NAME         = local.ddb_ttl_tag_name
       DROP_ATTRIBUTES          = join(",", var.settings.drop_attributes)
     }
   }

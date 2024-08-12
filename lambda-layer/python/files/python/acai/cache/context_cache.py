@@ -14,11 +14,10 @@ STS_CLIENT = boto3.client('sts')
 LOCAL_CACHE: Dict[str, Dict[str, Any]] = {}
 
 class ContextCache:
-    def __init__(self, logger: logging.Logger, org_reader_role_arn: str, context_cache_table_name: str, ddb_ttl_tag_name: str = 'cache_ttl_in_minutes', drop_attributes: list = []):
+    def __init__(self, logger: logging.Logger, org_reader_role_arn: str, context_cache_table_name: str, drop_attributes: list = []):
         self.logger = logger
         self.organizations_helper = OrganizationsHelper(logger, org_reader_role_arn)
         self.context_cache_table_name = context_cache_table_name
-        self.ddb_ttl_tag_name = ddb_ttl_tag_name
         self.drop_attributes = drop_attributes
         self.cache_ttl_in_minutes = self._get_ttl_from_dynamodb_tags()
         self.context_cache_table = CONTEXT_CACHE_RESOURCE.Table(self.context_cache_table_name)
@@ -164,7 +163,7 @@ class ContextCache:
         )
         tags = response['Tags']
         for tag in tags:
-            if tag['Key'] == self.ddb_ttl_tag_name:
+            if tag['Key'] == 'cache_ttl_in_minutes':
                 return int(tag['Value'])
         return 60  # Default TTL if tag is not found
 
