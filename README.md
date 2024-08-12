@@ -149,7 +149,6 @@ def lambda_handler(event, context):
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | n/a |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.47 |
 
 ## Modules
@@ -158,6 +157,7 @@ def lambda_handler(event, context):
 |------|--------|---------|
 | <a name="module_api_endpoint"></a> [api\_endpoint](#module\_api\_endpoint) | ./modules/api-endpoint | n/a |
 | <a name="module_lambda_account_cache"></a> [lambda\_account\_cache](#module\_lambda\_account\_cache) | acai-consulting/lambda/aws | 1.3.6 |
+| <a name="module_lambda_layer"></a> [lambda\_layer](#module\_lambda\_layer) | ./lambda-layer/python | n/a |
 
 ## Resources
 
@@ -170,8 +170,6 @@ def lambda_handler(event, context):
 | [aws_kms_alias.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_lambda_invocation.invoke](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
-| [aws_lambda_layer_version.lambda_layer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_layer_version) | resource |
-| [archive_file.lambda_layer_package](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_account_cache_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -195,7 +193,6 @@ def lambda_handler(event, context):
 | <a name="output_cache_lambda_permission_policy_arn"></a> [cache\_lambda\_permission\_policy\_arn](#output\_cache\_lambda\_permission\_policy\_arn) | cache\_lambda\_permission\_policy\_arn |
 | <a name="output_core_configuration_to_write"></a> [core\_configuration\_to\_write](#output\_core\_configuration\_to\_write) | Will be stored to the Account Cache node of the Core Configuration |
 | <a name="output_ddb_name"></a> [ddb\_name](#output\_ddb\_name) | ddb\_name |
-| <a name="output_ddb_ttl_tag_name"></a> [ddb\_ttl\_tag\_name](#output\_ddb\_ttl\_tag\_name) | ddb\_ttl\_tag\_name |
 <!-- END_TF_DOCS -->
 
 <!-- AUTHORS -->

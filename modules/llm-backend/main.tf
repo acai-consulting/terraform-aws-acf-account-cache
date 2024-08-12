@@ -72,8 +72,8 @@ resource "aws_dynamodb_table" "conversation_history" {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   # Load and decode the JSON content
-  validation_py = file("${path.module}/../../lambda-layer-files/python/acai/cache_query/validate_query.py")
-  helper_py     = file("${path.module}/../../lambda-layer-files/python/acai/cache_query/helper.py")
+  validation_py = file("${path.module}/../../lambda-layer/python/files/python/acai/cache_query/validate_query.py")
+  helper_py     = file("${path.module}/../../lambda-layer/python/files/python/acai/cache_query/helper.py")
   wiki_md       = file("${path.module}/../../wiki.md")
 }
 

@@ -24,7 +24,6 @@ LOGGER: Logger = setup_logging()
 # Environment Variables
 ORG_READER_ROLE_ARN = os.environ['ORG_READER_ROLE_ARN']
 CONTEXT_CACHE_TABLE_NAME = os.environ['CONTEXT_CACHE_TABLE_NAME']
-DDB_TTL_TAG_NAME = os.environ.get('DDB_TTL_TAG_NAME', 'cache_ttl_in_minutes')
 DROP_ATTRIBUTES = os.environ.get('DROP_ATTRIBUTES', '').split(",")
 
 def is_scheduled_event(event: Dict[str, Any]) -> bool:
