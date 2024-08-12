@@ -193,7 +193,6 @@ def lambda_handler(event, context):
 | <a name="output_cache_lambda_permission_policy_arn"></a> [cache\_lambda\_permission\_policy\_arn](#output\_cache\_lambda\_permission\_policy\_arn) | cache\_lambda\_permission\_policy\_arn |
 | <a name="output_core_configuration_to_write"></a> [core\_configuration\_to\_write](#output\_core\_configuration\_to\_write) | Will be stored to the Account Cache node of the Core Configuration |
 | <a name="output_ddb_name"></a> [ddb\_name](#output\_ddb\_name) | ddb\_name |
-| <a name="output_ddb_ttl_tag_name"></a> [ddb\_ttl\_tag\_name](#output\_ddb\_ttl\_tag\_name) | ddb\_ttl\_tag\_name |
 <!-- END_TF_DOCS -->
 
 <!-- AUTHORS -->
