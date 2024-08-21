@@ -1,14 +1,15 @@
 from typing import List, Dict, Any, Union
-import logging
 from acai.cache_query.json_pattern_engine import JsonPatternEngine
 from acai.cache_query.validate_query import ValidateQuery
+from acai.cache_query.account_in_scope import AccountInScope
 
 class ContextCacheQuery:
-    def __init__(self, logger: logging.Logger, context_cache):
+    def __init__(self, logger, context_cache):
         self.logger = logger
         self.context_cache = context_cache
         self.json_engine = JsonPatternEngine(logger)
         self.validation = ValidateQuery(logger)
+        self.account_in_scope = AccountInScope(logger)
 
     def get_context_cache(self):
         return self.context_cache
@@ -51,7 +52,7 @@ class ContextCacheQuery:
         counter = 0
         for account_id, details in cache_items.items():
             account_context = details.get("cacheObject", {})
-            if query == "*" or self._account_in_scope(account_context, query):
+            if query == "*" or self.account_in_scope.account_in_scope(account_context, query):
                 self.logger.debug(f'In Scope account: {account_context}')
                 result['account_context_list'].append(account_context)
                 result['account_ids'].append(account_id)
@@ -62,34 +63,3 @@ class ContextCacheQuery:
         result['info'] = f"Selected {counter} of {len(cache_items)} cache-items."
         return result
 
-    # ¦ _account_in_scope
-    def _account_in_scope(self, account: Dict[str, Any], query: Union[Dict[str, Any], List[Dict[str, Any]]]) -> bool:
-        queries = query if isinstance(query, list) else [query]
-        return any(self._account_in_scope_inner(account, q) for q in queries)
-
-    # ¦ _account_in_scope_inner
-    def _account_in_scope_inner(self, account: Dict[str, Any], query: Dict[str, Any]) -> bool:
-        query_lowered_keys = {k.lower(): v for k, v in query.items()}
-
-        account_in_scope = True
-
-        if 'exclude' in query_lowered_keys:
-            exclude_query = query_lowered_keys['exclude']
-            if isinstance(exclude_query, str) and exclude_query == "*":
-                account_in_scope = False
-            else:
-                account_in_scope = not self._matches_query(account, exclude_query)
-
-        if not account_in_scope and 'forceinclude' in query_lowered_keys:
-            force_include_query = query_lowered_keys['forceinclude']
-            account_in_scope = self._matches_query(account, force_include_query)
-
-        return account_in_scope
-
-    # ¦ _matches_query
-    def _matches_query(self, account: Dict[str, Any], query: Union[Dict[str, Any], List[Dict[str, Any]], str]) -> bool:
-        if isinstance(query, dict):
-            return self.json_engine.json_pattern_match_check(account, query)
-        if isinstance(query, list):
-            return any(self.json_engine.json_pattern_match_check(account, pat) for pat in query)
-        return False
