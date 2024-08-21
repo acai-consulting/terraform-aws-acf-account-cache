@@ -30,7 +30,7 @@ locals {
       "module_name"     = "terraform-aws-acf-account-cache",
       "module_source"   = "github.com/acai-consulting/terraform-aws-acf-account-cache",
       "module_feature"  = "cache-query-llm-backend",
-      "module_version"  = /*inject_version_start*/ "1.2.7" /*inject_version_end*/
+      "module_version"  = /*inject_version_start*/ "1.3.0" /*inject_version_end*/
     }
   )
 }
@@ -72,8 +72,8 @@ resource "aws_dynamodb_table" "conversation_history" {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   # Load and decode the JSON content
-  validation_py = file("${path.module}/../../lambda-layer-files/python/acai/cache_query/validate_query.py")
-  helper_py     = file("${path.module}/../../lambda-layer-files/python/acai/cache_query/helper.py")
+  validation_py = file("${path.module}/../../lambda-layer/python/files/python/acai/cache_query/validate_query.py")
+  helper_py     = file("${path.module}/../../lambda-layer/python/files/python/acai/cache_query/helper.py")
   wiki_md       = file("${path.module}/../../wiki.md")
 }
 

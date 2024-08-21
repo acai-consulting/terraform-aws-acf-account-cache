@@ -29,11 +29,10 @@ locals {
       "module_provider" = "ACAI GmbH",
       "module_name"     = "terraform-aws-acf-account-cache",
       "module_source"   = "github.com/acai-consulting/terraform-aws-acf-account-cache",
-      "module_version"  = /*inject_version_start*/ "1.2.7" /*inject_version_end*/
+      "module_version"  = /*inject_version_start*/ "1.3.0" /*inject_version_end*/
     }
   )
   kms_cmk_provided = var.settings.kms_cmk != null
-  ddb_ttl_tag_name = "cache_ttl_in_minutes"
 }
 
 
@@ -293,7 +292,7 @@ resource "aws_dynamodb_table" "context_cache" {
   tags = merge(
     local.resource_tags,
     {
-      "${local.ddb_ttl_tag_name}" = var.settings.cache_ttl_in_minutes
+      "cache_ttl_in_minutes" = var.settings.cache_ttl_in_minutes
     }
   )
 }
@@ -302,20 +301,12 @@ resource "aws_dynamodb_table" "context_cache" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA LAYER
 # ---------------------------------------------------------------------------------------------------------------------
-data "archive_file" "lambda_layer_package" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda-layer-files"
-  output_path = "${path.module}/zipped_package.zip"
-}
-
-resource "aws_lambda_layer_version" "lambda_layer" {
-  layer_name               = var.settings.lambda_layer_name
-  filename                 = data.archive_file.lambda_layer_package.output_path
-  compatible_runtimes      = [var.lambda_settings.runtime]
-  compatible_architectures = [var.lambda_settings.architecture]
-  source_code_hash         = data.archive_file.lambda_layer_package.output_base64sha256
-  lifecycle {
-    ignore_changes = [filename]
+module "lambda_layer" {
+  source = "./lambda-layer/python"
+  settings = {
+    lambda_layer_name = var.settings.lambda_layer_name
+    architectures     = [var.lambda_settings.architecture]
+    runtimes          = [var.lambda_settings.runtime]
   }
 }
 
@@ -333,7 +324,7 @@ module "lambda_account_cache" {
     description   = "Maintain and query the account-cache."
     layer_arn_list = [
       replace(var.lambda_settings.layer_arns["aws_lambda_powertools_python_layer_arn"], "$region", data.aws_region.current.name),
-      aws_lambda_layer_version.lambda_layer.arn
+      module.lambda_layer.arn
     ]
     handler = "main.lambda_handler"
     config  = var.lambda_settings
@@ -348,7 +339,6 @@ module "lambda_account_cache" {
       LOG_LEVEL                = var.lambda_settings.log_level
       ORG_READER_ROLE_ARN      = var.settings.org_reader_role_arn
       CONTEXT_CACHE_TABLE_NAME = aws_dynamodb_table.context_cache.name
-      DDB_TTL_TAG_NAME         = local.ddb_ttl_tag_name
       DROP_ATTRIBUTES          = join(",", var.settings.drop_attributes)
     }
   }
