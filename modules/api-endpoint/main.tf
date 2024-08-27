@@ -186,7 +186,7 @@ resource "aws_api_gateway_integration" "options_integration" {
 resource "aws_api_gateway_integration_response" "options_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   resource_id = aws_api_gateway_resource.cache_endpoint.id
-  http_method = aws_api_gateway_method.options_integration.http_method
+  http_method = aws_api_gateway_method.options.http_method
   status_code = aws_api_gateway_method_response.options_response_200.status_code
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
