@@ -22,6 +22,8 @@ This Terraform module facilitates the deployment of an AWS account-context cache
 
 The cached data includes essential details such as account ID, name, status, tags, and organizational unit (OU) hierarchy.
 
+Check out this [blog post](https://acai.gmbh/blog/aws-account-context-query/), to access the policy chat-bot via the icon on the lower right corner.
+
 **Cached Account-Context Data**
 The module retrieves and caches the following account-context data:
 
