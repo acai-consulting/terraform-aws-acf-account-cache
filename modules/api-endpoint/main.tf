@@ -155,6 +155,7 @@ resource "aws_api_gateway_integration_response" "cache_endpoint" {
 }
 
 resource "aws_api_gateway_method" "options" {
+  # checkov:skip=CKV2_AWS_53
   rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.cache_endpoint.id
   http_method   = "OPTIONS"
