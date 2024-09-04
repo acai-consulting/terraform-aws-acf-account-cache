@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.3.0...1.3.1) (2024-09-04)
+
+
+### Bug Fixes
+
+* refactor in scope, API Gateway ([#14](https://github.com/acai-consulting/terraform-aws-acf-account-cache/issues/14)) ([dcae64e](https://github.com/acai-consulting/terraform-aws-acf-account-cache/commit/dcae64e5adc1e47c1de6a606a8504f2eb0a6d141))
+
 ## [1.3.0](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.2.7...1.3.0) (2024-08-12)
 
 
