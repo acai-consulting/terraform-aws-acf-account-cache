@@ -1,12 +1,11 @@
 # terraform-aws-acf-account-cache
 
 <!-- SHIELDS -->
-[![Maintained by acai.gmbh][acai-shield]][acai-url] 
-![module-version-shield]
+[![Maintained by acai.gmbh][acai-shield]][acai-url]
+[![module-version-shield]][module-release-url]
 ![terraform-version-shield]
 ![trivy-shield]
 ![checkov-shield]
-[![Latest Release][release-shield]][release-url]
 
 <!-- LOGO -->
 <div style="text-align: right; margin-top: -60px;">
@@ -21,8 +20,6 @@
 This Terraform module facilitates the deployment of an AWS account-context cache, which queries and caches account-context data from AWS Organizations. 
 
 The cached data includes essential details such as account ID, name, status, tags, and organizational unit (OU) hierarchy.
-
-Check out this [blog post](https://acai.gmbh/blog/aws-account-context-query/), to access the policy chat-bot via the icon on the lower right corner.
 
 **Cached Account-Context Data**
 The module retrieves and caches the following account-context data:
@@ -151,6 +148,7 @@ def lambda_handler(event, context):
 
 | Name | Version |
 |------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | n/a |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.47 |
 
 ## Modules
@@ -159,7 +157,6 @@ def lambda_handler(event, context):
 |------|--------|---------|
 | <a name="module_api_endpoint"></a> [api\_endpoint](#module\_api\_endpoint) | ./modules/api-endpoint | n/a |
 | <a name="module_lambda_account_cache"></a> [lambda\_account\_cache](#module\_lambda\_account\_cache) | acai-consulting/lambda/aws | 1.3.6 |
-| <a name="module_lambda_layer"></a> [lambda\_layer](#module\_lambda\_layer) | ./lambda-layer/python | n/a |
 
 ## Resources
 
@@ -172,6 +169,8 @@ def lambda_handler(event, context):
 | [aws_kms_alias.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_lambda_invocation.invoke](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
+| [aws_lambda_layer_version.lambda_layer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_layer_version) | resource |
+| [archive_file.lambda_layer_package](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.kms_cmk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_account_cache_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -192,10 +191,10 @@ def lambda_handler(event, context):
 |------|-------------|
 | <a name="output_api_endpoint"></a> [api\_endpoint](#output\_api\_endpoint) | api\_endpoint |
 | <a name="output_cache_lambda_layer_arn"></a> [cache\_lambda\_layer\_arn](#output\_cache\_lambda\_layer\_arn) | cache\_lambda\_layer\_arn |
-| <a name="output_cache_lambda_name"></a> [cache\_lambda\_name](#output\_cache\_lambda\_name) | cache\_lambda\_name |
 | <a name="output_cache_lambda_permission_policy_arn"></a> [cache\_lambda\_permission\_policy\_arn](#output\_cache\_lambda\_permission\_policy\_arn) | cache\_lambda\_permission\_policy\_arn |
 | <a name="output_core_configuration_to_write"></a> [core\_configuration\_to\_write](#output\_core\_configuration\_to\_write) | Will be stored to the Account Cache node of the Core Configuration |
 | <a name="output_ddb_name"></a> [ddb\_name](#output\_ddb\_name) | ddb\_name |
+| <a name="output_ddb_ttl_tag_name"></a> [ddb\_ttl\_tag\_name](#output\_ddb\_ttl\_tag\_name) | ddb\_ttl\_tag\_name |
 <!-- END_TF_DOCS -->
 
 <!-- AUTHORS -->
@@ -217,13 +216,12 @@ See [LICENSE][license-url] for full details.
 [acai-shield]: https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat
 [acai-url]: https://acai.gmbh
 [module-version-shield]: https://img.shields.io/badge/module_version-1.3.1-CB224B?style=flat
+[module-release-url]: https://github.com/acai-consulting/terraform-aws-acf-account-cache/releases
 [terraform-version-shield]: https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet
 [trivy-shield]: https://img.shields.io/badge/trivy-passed-green
 [checkov-shield]: https://img.shields.io/badge/checkov-passed-green
-[release-shield]: https://img.shields.io/github/v/release/acai-consulting/terraform-aws-acf-idc?style=flat&color=success
 [architecture]: ./docs/terraform-aws-acf-account-cache.svg
-[release-url]: https://github.com/acai-consulting/terraform-aws-acf-account-cache/releases
-[license-url]: https://github.com/acai-consulting/terraform-aws-acf-idc/tree/main/LICENSE.md
+[license-url]: https://github.com/acai-consulting/terraform-aws-acf-account-cache/tree/main/LICENSE.md
 [terraform-url]: https://www.terraform.io
 [aws-url]: https://aws.amazon.com
 [example-complete-url]: https://github.com/acai-consulting/terraform-aws-acf-account-cache/tree/main/examples/complete
