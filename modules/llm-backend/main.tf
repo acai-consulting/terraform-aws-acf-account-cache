@@ -98,9 +98,9 @@ module "llm_backend" {
     package = {
       source_path = "${path.module}/lambda-files"
       files_to_inject = {
-        "/acai/cache_query/validate_query.py" : local.validation_py
-        "/acai/cache_query/helper.py" : local.helper_py
-        "/wiki.md" : local.wiki_md
+        "acai/cache_query/validate_query.py" : local.validation_py
+        "acai/cache_query/helper.py" : local.helper_py
+        "wiki.md" : local.wiki_md
       }
     }
     tracing_mode = var.lambda_settings.tracing_mode
