@@ -4,6 +4,7 @@ import uuid
 import json
 import re
 import boto3
+from botocore.config import Config
 import time
 from aws_lambda_powertools import Logger
 from acai.cache_query.validate_query import ValidateQuery
@@ -34,7 +35,14 @@ CHAT_HISTORY_DDB_TABLE_NAME = os.environ['CHAT_HISTORY_DDB_TABLE_NAME']
 
 # Bedrock client initialization
 def get_bedrock_client() -> boto3.client:
-    return boto3.client(service_name=BEDROCK_SERVICE_NAME, region_name=BEDROCK_SERVICE_REGION)
+    config = Config(
+        read_timeout=1000,
+        retries={
+            'max_attempts': 10,              
+            'mode': 'adaptive'               
+        }        
+    )
+    return boto3.client(service_name=BEDROCK_SERVICE_NAME, region_name=BEDROCK_SERVICE_REGION, config=config)
 
 BEDROCK_CLIENT: boto3.client = get_bedrock_client()
 

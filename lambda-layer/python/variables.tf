@@ -2,12 +2,12 @@ variable "settings" {
   type = object({
     layer_name    = optional(string, "acai-account-cache-layer")
     architectures = optional(list(string), ["x86_64"])
-    runtimes      = optional(list(string), ["python3.10"])
+    runtimes      = optional(list(string), ["python3.12"])
   })
   default = {
     layer_name    = "acai-account-cache-layer"
     architectures = ["x86_64"]
-    runtimes      = ["python3.10"]
+    runtimes      = ["python3.12"]
   }
 
   validation {
