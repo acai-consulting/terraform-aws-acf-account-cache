@@ -41,7 +41,7 @@ variable "lambda_settings" {
   description = "HCL map of the Lambda-Settings."
   type = object({
     architecture          = optional(string, "x86_64")
-    runtime               = optional(string, "python3.10")
+    runtime               = optional(string, "python3.12")
     log_level             = optional(string, "INFO") # Logging level, e.g. "INFO"
     log_retention_in_days = optional(number, 7)      # Retention period for log files, in days
     error_forwarder = optional(object({
@@ -58,7 +58,7 @@ variable "lambda_settings" {
 
   default = {
     architecture          = "x86_64"
-    runtime               = "python3.10"
+    runtime               = "python3.12"
     log_level             = "INFO"
     log_retention_in_days = 7
     error_forwarder       = null
