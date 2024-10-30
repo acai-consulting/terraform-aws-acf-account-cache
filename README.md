@@ -213,7 +213,7 @@ See [LICENSE][license-url] for full details.
 <!-- MARKDOWN LINKS & IMAGES -->
 [acai-shield]: https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat
 [acai-url]: https://acai.gmbh
-[module-version-shield]: https://img.shields.io/badge/module_version-1.3.2-CB224B?style=flat
+[module-version-shield]: https://img.shields.io/badge/module_version-1.3.3-CB224B?style=flat
 [module-release-url]: https://github.com/acai-consulting/terraform-aws-acf-account-cache/releases
 [terraform-version-shield]: https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet
 [trivy-shield]: https://img.shields.io/badge/trivy-passed-green
