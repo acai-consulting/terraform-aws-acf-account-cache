@@ -14,61 +14,57 @@
 </div>
 </br>
 
-<!-- DESCRIPTION -->
-[Terraform][terraform-url] module to deploy an serverless AWS account-context cache.
+<!-- BEGIN_ACAI_DOCS -->
+## Overview
 
-This Terraform module facilitates the deployment of an AWS account-context cache, which queries and caches account-context data from AWS Organizations. 
+The `terraform-aws-acf-account-cache` module deploys a serverless AWS account-context cache. This module enables querying and caching of account-context data from AWS Organizations, storing essential details such as account ID, name, status, tags, and organizational unit (OU) hierarchy.
 
-The cached data includes essential details such as account ID, name, status, tags, and organizational unit (OU) hierarchy.
+## Cached Account-Context Data
 
-**Cached Account-Context Data**
-The module retrieves and caches the following account-context data:
+The module retrieves and caches the following details:
 
 ```json
 {
-    "accountId": "654654551430",
-    "accountName": "aws-testbed-core-backup",
-    "accountStatus": "ACTIVE",
-    "accountTags": {
-        "owner": "Foundation Security Backup Team"
-    },
-    "ouId": "ou-s2bx-wq9eltfy",
-    "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-1rsmt2o1/ou-s2bx-wq9eltfy",
-    "ouName": "Security",
-    "ouNameWithPath": "Root/Core/Security",
-    "ouTags": {
-        "owner": "Foundation Security"
-    }
+  "accountId": "654654551430",
+  "accountName": "aws-testbed-core-backup",
+  "accountStatus": "ACTIVE",
+  "accountTags": {
+    "owner": "Platform Security Backup Team"
+  },
+  "ouId": "ou-s2bx-wq9eltfy",
+  "ouIdWithPath": "o-5l2vzue7ku/r-s2bx/ou-s2bx-1rsmt2o1/ou-s2bx-wq9eltfy",
+  "ouName": "Security",
+  "ouNameWithPath": "Root/Core/Security",
+  "ouTags": {
+    "owner": "Platform Security"
+  }
 }
 ```
 
-* The account-context cache can be deployed in any AWS account of the AWS Organization.
-* The account-context cache can be queried following this syntax: [query wiki](./wiki.md)
-* Optionally provision the Organization-Info-Reader IAM Role to be assumed from the context cache.
+### Key Features
 
-<!-- ARCHITECTURE -->
+- Deployable in any AWS account within the AWS Organization.
+- Supports queries using a structured syntax: [Account-Query](https://docs.acai.gmbh/json-engine/account-selection/).
+- Optionally provisions the Organization-Info-Reader IAM Role for context cache assumption.
+
 ## Architecture
 
 ![architecture][architecture]
 
-<!-- USAGE -->
-## Usage
-
-### Terraform resources
+## Deploying the Context Cache
 
 ```hcl
 module "org_info_reader" {
   source = "git::https://github.com/acai-consulting/terraform-aws-acf-account-cache.git//org-info-reader"
 
   settings = {
-    trusted_account_ids = ["992382728088"] # Core Security
+    trusted_account_ids = local.platform_settings.governance.org_mgmt.core_account_ids
   }
   providers = {
     aws = aws.org_mgmt
   }
 }
 
-### terraform-aws-acf-account-cache
 module "account_cache" {
   source = "git::https://github.com/acai-consulting/terraform-aws-acf-account-cache.git"
 
@@ -80,7 +76,6 @@ module "account_cache" {
   }
 }
 
-### optional query generator
 module "account_cache" {
   source = "git::https://github.com/acai-consulting/terraform-aws-acf-account-cache.git//modules/llm-backend"
 
@@ -93,11 +88,41 @@ module "account_cache" {
 }
 ```
 
-### Cache Consumer
+## Cache Consumer
 
-Add the provisioned Lambda Layer to your Python Lambdas.
+### Terraform Query Example
 
-```hcl
+```terraform
+data "aws_lambda_invocation" "query_for_prod_accounts" {
+  function_name = local.platform_settings.governance.account_context_cache.lambda_name
+
+  input    = <<JSON
+{
+  "query": {
+    "exclude" : "*",
+    "forceInclude" : {
+      "ouNameWithPath" : [
+        {
+          "contains": "/Prod/"
+        }
+      ]
+    }
+  }
+}
+JSON
+  provider = aws.core_security
+}
+
+locals {
+  prod_accounts = jsondecode(data.aws_lambda_invocation.query_for_prod_accounts.result).result.account_ids
+}
+```
+
+### AWS Lambda Python Integration
+
+To integrate with AWS Lambda, use the provisioned Context Cache Lambda Layer:
+
+```python
 import os
 from acai.cache.context_cache import ContextCache
 from acai.cache_query.context_cache_query import ContextCacheQuery
@@ -113,28 +138,29 @@ ORG_READER_ROLE_ARN = os.environ['ORG_READER_ROLE_ARN']
 CONTEXT_CACHE_TABLE_NAME = os.environ['CONTEXT_CACHE_TABLE_NAME']
 
 def lambda_handler(event, context):
-    try:
-        context_cache = ContextCache(LOGGER, ORG_READER_ROLE_ARN, CONTEXT_CACHE_TABLE_NAME)
-        context_cache_query = ContextCacheQuery(LOGGER, context_cache)
-        
-        accounts = context_cache_query.query_cache({
-            "exclude": "*",
-            "forceInclude": [
-                {
-                    "accountTags": {
-                        "environment": "Prod"
-                    },
-                    "ouNameWithPath": [
-                        {
-                            "contains": "/BusinessUnit_1/"
-                        }
-                    ]
-                }
-            ]
-        })        
+    context_cache = ContextCache(LOGGER, ORG_READER_ROLE_ARN, CONTEXT_CACHE_TABLE_NAME)
+    context_cache_query = ContextCacheQuery(LOGGER, context_cache)
+    
+    accounts = context_cache_query.query_cache({
+        "exclude": "*",
+        "forceInclude": [
+            {
+                "accountTags": {
+                    "environment": "Prod"
+                },
+                "ouNameWithPath": [
+                    {
+                        "contains": "/BusinessUnit_1/"
+                    }
+                ]
+            }
+        ]
+    })        
 
-        context_cache.get_member_account_context(accounts[0])
+    context_cache.get_member_account_context(accounts[0])
 ```
+<!-- END_ACAI_DOCS -->
+
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
