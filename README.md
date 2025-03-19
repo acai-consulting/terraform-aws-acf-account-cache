@@ -244,7 +244,7 @@ See [LICENSE][license-url] for full details.
 [terraform-version-shield]: https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet
 [trivy-shield]: https://img.shields.io/badge/trivy-passed-green
 [checkov-shield]: https://img.shields.io/badge/checkov-passed-green
-[architecture]: ./docs/terraform-aws-acf-account-cache.svg
+[architecture]: ./docs/terraform-aws-acf-account-cache.png
 [license-url]: https://github.com/acai-consulting/terraform-aws-acf-account-cache/tree/main/LICENSE.md
 [terraform-url]: https://www.terraform.io
 [aws-url]: https://aws.amazon.com
