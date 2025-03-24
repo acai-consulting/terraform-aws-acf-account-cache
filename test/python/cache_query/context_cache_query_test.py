@@ -6,7 +6,7 @@ import sys
 import re
 
 # Add the parent directory to the system path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../lambda-layer/python/files/python')))
 
 from acai.cache_query.context_cache_query import ContextCacheQuery
 
