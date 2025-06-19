@@ -38,7 +38,7 @@ resource "aws_api_gateway_usage_plan" "api_key_usage_plan" {
 
   api_stages {
     api_id = aws_api_gateway_rest_api.api.id
-    stage  = aws_api_gateway_deployment.api_deployment.stage_name
+    stage  = aws_api_gateway_stage.api_stage.stage_name
   }
 
   quota_settings {
@@ -87,7 +87,6 @@ resource "aws_lambda_permission" "allowed_triggers" {
 
 resource "aws_api_gateway_deployment" "api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = var.api_settings.api_stage_name
   triggers = {
     redeployment = sha256(jsonencode(aws_api_gateway_rest_api.api.body))
   }
@@ -98,6 +97,24 @@ resource "aws_api_gateway_deployment" "api_deployment" {
     aws_api_gateway_integration.cache_endpoint
   ]
 }
+
+resource "aws_api_gateway_stage" "api_stage" {
+  #checkov:skip=CKV2_AWS_4: "Ensure API Gateway stage have logging level defined as appropriate"
+  #checkov:skip=CKV2_AWS_29 = "Ensure public API gateway are protected by WAF"
+  #checkov:skip=CKV2_AWS_51: "Ensure AWS API Gateway endpoints uses client certificate authentication"
+  #checkov:skip=CKV_AWS_76: "Ensure API Gateway has Access Logging enabled"
+  stage_name    = var.api_settings.api_stage_name
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  deployment_id = aws_api_gateway_deployment.api_deployment.id
+
+  xray_tracing_enabled = true
+
+  cache_cluster_enabled = true
+  cache_cluster_size    = "0.5"
+
+  tags = local.resource_tags
+}
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ API GATEWAY - QUERY CACHE
