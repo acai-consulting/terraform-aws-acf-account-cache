@@ -87,7 +87,6 @@ resource "aws_lambda_permission" "allowed_triggers" {
 
 resource "aws_api_gateway_deployment" "api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = var.api_settings.api_stage_name
   triggers = {
     redeployment = sha256(jsonencode(aws_api_gateway_rest_api.api.body))
   }
@@ -98,6 +97,15 @@ resource "aws_api_gateway_deployment" "api_deployment" {
     aws_api_gateway_integration.cache_endpoint
   ]
 }
+
+resource "aws_api_gateway_stage" "api_stage" {
+  stage_name    = var.api_settings.api_stage_name
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  deployment_id = aws_api_gateway_deployment.api_deployment.id
+
+  tags = local.resource_tags
+}
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ API GATEWAY - QUERY CACHE
