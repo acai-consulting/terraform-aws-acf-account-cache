@@ -5,5 +5,5 @@ output "api_key_value" {
 
 output "api_endpoint" {
   description = "Cache API endpoint"
-  value       = "${aws_api_gateway_deployment.api_deployment.invoke_url}/${var.api_settings.api_endpoint_name}"
+  value       = "${aws_api_gateway_stage.api_stage.invoke_url}/${var.api_settings.api_endpoint_name}"
 }
