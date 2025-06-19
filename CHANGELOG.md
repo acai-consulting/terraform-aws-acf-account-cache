@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.4](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.3.3...1.3.4) (2025-06-19)
+
+
+### Bug Fixes
+
+* aws_api_gateway_stage ([#18](https://github.com/acai-consulting/terraform-aws-acf-account-cache/issues/18)) ([5b4d599](https://github.com/acai-consulting/terraform-aws-acf-account-cache/commit/5b4d5992426ba4a7a3472ed61f7a68ff59bea316))
+
 ## [1.3.3](https://github.com/acai-consulting/terraform-aws-acf-account-cache/compare/1.3.2...1.3.3) (2024-10-30)
 
 
