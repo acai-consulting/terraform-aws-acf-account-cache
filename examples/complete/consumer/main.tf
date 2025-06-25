@@ -34,7 +34,7 @@ module "lambda_account_cache_consumer" {
   #checkov:skip=CKV_TF_1: Currently version-tags are used
   #checkov:skip=CKV_AWS_50
   source  = "acai-consulting/lambda/aws"
-  version = "~> 1.3.6"
+  version = "1.3.12"
 
   lambda_settings = {
     function_name = "account-cache-consumer"

@@ -82,7 +82,7 @@ module "llm_backend" {
   #checkov:skip=CKV_TF_1
   #checkov:skip=CKV_AWS_50
   source  = "acai-consulting/lambda/aws"
-  version = "1.3.7"
+  version = "1.3.12"
 
   lambda_settings = {
     function_name = var.settings.lambda_name

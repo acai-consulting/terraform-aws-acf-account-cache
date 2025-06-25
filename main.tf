@@ -317,7 +317,7 @@ module "lambda_layer" {
 module "lambda_account_cache" {
   #checkov:skip=CKV_TF_1: Currently version-tags are used
   source  = "acai-consulting/lambda/aws"
-  version = "1.3.7"
+  version = "1.3.12"
 
   lambda_settings = {
     function_name = var.settings.lambda_name
