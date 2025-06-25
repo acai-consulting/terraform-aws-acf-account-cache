@@ -30,7 +30,7 @@ locals {
       "module_name"     = "terraform-aws-acf-account-cache",
       "module_source"   = "github.com/acai-consulting/terraform-aws-acf-account-cache",
       "module_feature"  = "cache-query-llm-backend",
-      "module_version"  = /*inject_version_start*/ "1.3.4" /*inject_version_end*/
+      "module_version"  = /*inject_version_start*/ "/*inject_version_start*/ ".3.5" /*inject_version_end*/
     }
   )
 }
