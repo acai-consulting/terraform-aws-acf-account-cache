@@ -30,7 +30,12 @@ locals {
       "module_name"     = "terraform-aws-acf-account-cache",
       "module_source"   = "github.com/acai-consulting/terraform-aws-acf-account-cache",
       "module_feature"  = "cache-query-llm-backend",
-      "module_version"  = /*inject_version_start*/ "/*inject_version_start*/ ".3.5" /*inject_version_end*/
+      "module_version"  = /*inject_version_start*/ "1.3.5" /*inject_version_end*/
+    },
+    can(var.resource_tags["module_stack"]) ? {
+      "module_stack" = "${var.resource_tags["module_stack"]}/acf-account-cache"
+    } : {
+      "module_stack" = "acf-account-cache"
     }
   )
 }
@@ -82,7 +87,7 @@ module "llm_backend" {
   #checkov:skip=CKV_TF_1
   #checkov:skip=CKV_AWS_50
   source  = "acai-consulting/lambda/aws"
-  version = "1.3.12"
+  version = "1.3.14"
 
   lambda_settings = {
     function_name = var.settings.lambda_name
