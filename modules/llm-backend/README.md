@@ -17,7 +17,7 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_api_endpoint"></a> [api\_endpoint](#module\_api\_endpoint) | ../api-endpoint | n/a |
-| <a name="module_llm_backend"></a> [llm\_backend](#module\_llm\_backend) | acai-consulting/lambda/aws | 1.3.12 |
+| <a name="module_llm_backend"></a> [llm\_backend](#module\_llm\_backend) | acai-consulting/lambda/aws | 1.3.14 |
 
 ## Resources
 
