@@ -33,7 +33,7 @@ locals {
     },
     can(var.resource_tags["module_stack"]) ? {
       "module_stack" = "${var.resource_tags["module_stack"]}/acf-account-cache"
-    } : {
+      } : {
       "module_stack" = "acf-account-cache"
     }
   )
