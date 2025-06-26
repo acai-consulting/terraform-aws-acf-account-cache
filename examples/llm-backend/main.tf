@@ -32,7 +32,7 @@ module "llm_backend" {
 }
 
 
-data "aws_lambda_invocation" "llm_backend" {
+resource "aws_lambda_invocation" "llm_backend" {
   function_name = module.llm_backend.lambda_name
 
   input    = <<JSON
